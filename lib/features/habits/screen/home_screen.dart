@@ -20,8 +20,9 @@ class CategoryFilterNotifier extends Notifier<String> {
   void select(String category) => state = category;
 }
 
-final categoryFilterProvider =
-    NotifierProvider<CategoryFilterNotifier, String>(CategoryFilterNotifier.new);
+final categoryFilterProvider = NotifierProvider<CategoryFilterNotifier, String>(
+  CategoryFilterNotifier.new,
+);
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -32,13 +33,13 @@ class HomeScreen extends ConsumerWidget {
       habit: habit,
       onSave: (title, category, colorValue) {
         if (habit == null) {
-          ref.read(habitControllerProvider.notifier).addHabit(
-                title,
-                category: category,
-                colorValue: colorValue,
-              );
+          ref
+              .read(habitControllerProvider.notifier)
+              .addHabit(title, category: category, colorValue: colorValue);
         } else {
-          ref.read(habitControllerProvider.notifier).editHabit(
+          ref
+              .read(habitControllerProvider.notifier)
+              .editHabit(
                 habit.id!,
                 title,
                 category: category,
@@ -120,7 +121,9 @@ class HomeScreen extends ConsumerWidget {
                     '${displayedHabits.length} habits',
                     style: TextStyle(
                       fontSize: 13,
-                      color: isDark ? Colors.grey.shade400 : Colors.grey.shade600,
+                      color: isDark
+                          ? Colors.grey.shade400
+                          : Colors.grey.shade600,
                     ),
                   ),
               ],
@@ -131,7 +134,7 @@ class HomeScreen extends ConsumerWidget {
                   ? Center(
                       child: Text(
                         habits.isEmpty
-                            ? 'No habits yet. Tap + to start your streak!'
+                            ? 'No habits yet.'
                             : 'No habits found in "$selectedCategory".',
                         style: const TextStyle(color: Colors.grey),
                       ),
@@ -148,9 +151,8 @@ class HomeScreen extends ConsumerWidget {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (_) => HabitDetailScreen(
-                                    habitId: habit.id!,
-                                  ),
+                                  builder: (_) =>
+                                      HabitDetailScreen(habitId: habit.id!),
                                 ),
                               );
                             }
@@ -172,7 +174,9 @@ class HomeScreen extends ConsumerWidget {
                             ScaffoldMessenger.of(context).clearSnackBars();
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
-                                content: Text('Habit "${deletedHabit.title}" deleted'),
+                                content: Text(
+                                  'Habit "${deletedHabit.title}" deleted',
+                                ),
                                 duration: const Duration(seconds: 4),
                                 action: SnackBarAction(
                                   label: 'Undo',

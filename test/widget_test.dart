@@ -5,8 +5,10 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:daily_flow/features/habits/controllers/habit_controller.dart';
 import 'package:daily_flow/features/habits/models/habit.dart';
 import 'package:daily_flow/features/habits/screen/habit_detail_screen.dart';
+import 'package:daily_flow/features/navigation/screen/main_shell.dart';
 import 'package:daily_flow/features/profile/screen/profile_screen.dart';
 import 'package:daily_flow/features/settings/screen/settings_screen.dart';
+import 'package:daily_flow/features/splash/screen/splash_screen.dart';
 import 'package:daily_flow/main.dart';
 
 class FakeHabitController extends HabitController {
@@ -69,7 +71,7 @@ void main() {
         overrides: [
           habitControllerProvider.overrideWith(FakeHabitController.new),
         ],
-        child: const DailyFlowApp(),
+        child: const DailyFlowApp(home: MainShell()),
       ),
     );
 
@@ -99,7 +101,7 @@ void main() {
         overrides: [
           habitControllerProvider.overrideWith(FakeHabitController.new),
         ],
-        child: const DailyFlowApp(),
+        child: const DailyFlowApp(home: MainShell()),
       ),
     );
 
@@ -131,7 +133,7 @@ void main() {
             () => FakeHabitController([sampleHabit]),
           ),
         ],
-        child: const DailyFlowApp(),
+        child: const DailyFlowApp(home: MainShell()),
       ),
     );
 
@@ -165,7 +167,7 @@ void main() {
             () => FakeHabitController([sampleHabit]),
           ),
         ],
-        child: const DailyFlowApp(),
+        child: const DailyFlowApp(home: MainShell()),
       ),
     );
 
@@ -221,7 +223,7 @@ void main() {
             () => FakeHabitController([sampleHabit]),
           ),
         ],
-        child: const DailyFlowApp(),
+        child: const DailyFlowApp(home: MainShell()),
       ),
     );
 
@@ -258,7 +260,7 @@ void main() {
             () => FakeHabitController([sampleHabit]),
           ),
         ],
-        child: const DailyFlowApp(),
+        child: const DailyFlowApp(home: MainShell()),
       ),
     );
 
@@ -326,5 +328,32 @@ void main() {
 
     final lightApp = tester.widget<MaterialApp>(find.byType(MaterialApp));
     expect(lightApp.themeMode, ThemeMode.light);
+  });
+
+  testWidgets('DailyFlowApp launches SplashScreen and transitions to MainShell',
+      (WidgetTester tester) async {
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          habitControllerProvider.overrideWith(FakeHabitController.new),
+        ],
+        child: const DailyFlowApp(),
+      ),
+    );
+
+    // Verify SplashScreen is rendered on app launch
+    expect(find.byType(SplashScreen), findsOneWidget);
+    expect(find.text('DailyFlow'), findsOneWidget);
+    expect(find.text('Build consistency, one day at a time'), findsOneWidget);
+    expect(find.text('Preparing your daily flow...'), findsOneWidget);
+
+    // Fast forward animation and duration
+    await tester.pump(const Duration(milliseconds: 900));
+    await tester.pump(const Duration(milliseconds: 1000));
+    await tester.pumpAndSettle();
+
+    // Verify it transitioned to MainShell
+    expect(find.byType(MainShell), findsOneWidget);
+    expect(find.text("Today's Habits"), findsOneWidget);
   });
 }

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'core/theme/app_theme.dart';
 import 'core/theme/theme_provider.dart';
-import 'features/navigation/screen/main_shell.dart';
+import 'features/splash/screen/splash_screen.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -10,7 +10,9 @@ void main() {
 }
 
 class DailyFlowApp extends ConsumerWidget {
-  const DailyFlowApp({super.key});
+  final Widget? home;
+
+  const DailyFlowApp({super.key, this.home});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -22,7 +24,7 @@ class DailyFlowApp extends ConsumerWidget {
       themeMode: themeMode,
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
-      home: const MainShell(),
+      home: home ?? const SplashScreen(),
     );
   }
 }

@@ -6,9 +6,14 @@ A clean, modern, and production-ready habit-tracking mobile application built wi
 
 ## ✨ Features & Navigation
 
-DailyFlow is structured around a 4-tab bottom navigation shell, drill-down detail views, and dedicated settings:
+DailyFlow is structured around an animated loading splash screen, a 4-tab bottom navigation shell, drill-down detail views, and dedicated settings:
 
-### 1. 📅 Today (`HomeScreen`)
+### 1. 🚀 App Loading & Splash Screen (`SplashScreen`)
+- **Branded Launch Experience**: Displays the animated app logo (`assets/icons/app_icon.png`), smooth scale & fade-in transitions, and encouragement tagline.
+- **Asynchronous Initialization**: Preloads local SQLite habits data in the background during launch.
+- **Seamless Page Transition**: Smooth fade transition directly into `MainShell`.
+
+### 2. 📅 Today (`HomeScreen`)
 - **Interactive Habit Check-ins**: Check off daily goals with smooth animations and tactile feedback (`HapticFeedback.lightImpact()`).
 - **Interactive 7-Day Strip**: Compact weekly timeline on each habit tile allowing immediate backfilling or editing for any of the past 7 days.
 - **Category Filter Chips**: Filter habits instantly by category (`All`, `General`, `Health`, `Study`, `Coding`, `Fitness`).
@@ -18,31 +23,31 @@ DailyFlow is structured around a 4-tab bottom navigation shell, drill-down detai
   - Swipe-to-delete with animated confirmation and one-tap **Undo** `SnackBarAction`.
 - **Quick Theme Toggle**: One-tap dark/light mode toggle in the AppBar.
 
-### 2. 📊 Insights & Analytics (`StatsScreen`)
+### 3. 📊 Insights & Analytics (`StatsScreen`)
 - **Key Metric KPI Cards**: Quick overview of Total Check-ins, All-Time Longest Streak, and Active Habits.
 - **12-Week Consistency Heatmap**: GitHub-style 84-day contribution grid with dynamic opacity scaling to highlight daily commitment.
 - **Weekday Performance Bar Chart**: Custom animated vertical bar chart displaying completion rates across Monday through Sunday.
 
-### 3. ⏱️ Focus / Pomodoro (`FocusScreen`)
+### 4. ⏱️ Focus / Pomodoro (`FocusScreen`)
 - **Linked Habit Selection**: Select which habit you are dedicating time to.
 - **Duration Presets**: Instant selection chips for `15 min`, `25 min`, `45 min`, and `60 min` sessions.
 - **Animated Circular Countdown**: Large countdown timer with smooth visual feedback and pause/resume/reset controls.
 - **Auto-Completion**: Reaching `00:00` triggers completion haptics and automatically logs the habit as completed for today.
 
-### 4. 👤 Profile (`ProfileScreen`)
+### 5. 👤 Profile (`ProfileScreen`)
 - **User Dashboard**: Displays user avatar, rank badge ("DailyFlow Champion"), consistency level, and key stats.
 - **Achievement Badges**: Visual milestones for streaks and check-ins (*7-Day Club*, *Habit Hero*, *Focused Mind*, *Century Flow*).
 - **Category Breakdown**: Dynamic badge overview showing habit counts across all categories.
 - **Settings Link**: Direct access to application preferences.
 
-### 5. ⚙️ Settings (`SettingsScreen`)
+### 6. ⚙️ Settings (`SettingsScreen`)
 - **Theme Mode Selector**: Three-way `SegmentedButton` to select between **Light**, **Dark**, and **System Default** themes.
 - **Dark Mode Quick Toggle**: Instant switch between light and dark palettes.
 - **Preferences**:
   - Haptic feedback toggle.
   - Interactive Daily Reminder `TimePicker`.
 
-### 6. 🔍 Habit Details (`HabitDetailScreen`)
+### 7. 🔍 Habit Details (`HabitDetailScreen`)
 - **Detailed Streak Metrics**: Current streak, all-time best streak, and total completed days.
 - **Interactive Monthly Calendar**: Full calendar grid with previous/next month navigation for auditing or backfilling completions.
 - **Edit & Delete Actions**: Quick access from the detail screen's AppBar.
@@ -92,9 +97,12 @@ lib/
 │   ├── profile/
 │   │   └── screen/
 │   │       └── profile_screen.dart   # User profile, achievements, category breakdown & settings link
-│   └── settings/
+│   ├── settings/
+│   │   └── screen/
+│   │       └── settings_screen.dart  # Dedicated settings: dark mode, theme selector & preferences
+│   └── splash/
 │       └── screen/
-│           └── settings_screen.dart  # Dedicated settings: dark mode, theme selector & preferences
+│           └── splash_screen.dart    # Animated loading splash screen with logo & preload
 └── main.dart                         # Entrypoint, ProviderScope, centralized AppTheme binding
 ```
 
@@ -169,7 +177,7 @@ flutter --version
   flutter analyze
   ```
 
-- **Run Automated Tests** (22 passing unit & widget tests):
+- **Run Automated Tests** (23 passing unit & widget tests):
   ```bash
   flutter test
   ```
