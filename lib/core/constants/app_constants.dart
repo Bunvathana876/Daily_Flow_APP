@@ -28,4 +28,3 @@ class AppConstants {
 
   static const List<int> focusPresetsMinutes = [15, 25, 45, 60];
 }
-

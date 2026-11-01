@@ -1,5 +1,9 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:sqflite/sqflite.dart';
 import '../../../core/database/db_helper.dart';
+import '../../../core/utils/date_utils.dart';
+import '../../../core/utils/gamification_math.dart';
+import '../../gamification/models/xp_entry.dart';
 import '../models/habit.dart';
 
 abstract class HabitRepository {
@@ -14,6 +18,7 @@ abstract class HabitRepository {
     required String title,
     String? category,
     int? colorValue,
+    bool? isArchived,
   });
   Future<void> deleteHabit(int id);
   Future<void> toggleHabitLog({
@@ -28,7 +33,7 @@ class SqliteHabitRepository implements HabitRepository {
   final DBHelper _dbHelper;
 
   SqliteHabitRepository([DBHelper? dbHelper])
-      : _dbHelper = dbHelper ?? DBHelper.instance;
+    : _dbHelper = dbHelper ?? DBHelper.instance;
 
   @override
   Future<List<Habit>> getHabits() async {
@@ -52,6 +57,7 @@ class SqliteHabitRepository implements HabitRepository {
         completedDates: logsByHabit[id] ?? <String>{},
         category: (row['category'] as String?) ?? 'General',
         colorValue: (row['color_value'] as int?) ?? 0xFF4F46E5,
+        isArchived: (row['is_archived'] as int? ?? 0) == 1,
       );
     }).toList();
   }
@@ -70,6 +76,7 @@ class SqliteHabitRepository implements HabitRepository {
       'created_at': now.toIso8601String(),
       'category': category,
       'color_value': colorValue,
+      'is_archived': 0,
     });
 
     return Habit(
@@ -79,6 +86,7 @@ class SqliteHabitRepository implements HabitRepository {
       completedDates: {},
       category: category,
       colorValue: colorValue,
+      isArchived: false,
     );
   }
 
@@ -88,25 +96,24 @@ class SqliteHabitRepository implements HabitRepository {
     required String title,
     String? category,
     int? colorValue,
+    bool? isArchived,
   }) async {
     final db = await _dbHelper.database;
     final updateData = <String, dynamic>{'title': title.trim()};
     if (category != null) updateData['category'] = category;
     if (colorValue != null) updateData['color_value'] = colorValue;
+    if (isArchived != null) updateData['is_archived'] = isArchived ? 1 : 0;
 
-    await db.update(
-      'habits',
-      updateData,
-      where: 'id = ?',
-      whereArgs: [id],
-    );
+    await db.update('habits', updateData, where: 'id = ?', whereArgs: [id]);
   }
 
   @override
   Future<void> deleteHabit(int id) async {
     final db = await _dbHelper.database;
-    await db.delete('habits', where: 'id = ?', whereArgs: [id]);
-    await db.delete('habit_logs', where: 'habit_id = ?', whereArgs: [id]);
+    await db.transaction((txn) async {
+      await txn.delete('habits', where: 'id = ?', whereArgs: [id]);
+      await txn.delete('habit_logs', where: 'habit_id = ?', whereArgs: [id]);
+    });
   }
 
   @override
@@ -116,18 +123,82 @@ class SqliteHabitRepository implements HabitRepository {
     required bool isCompleted,
   }) async {
     final db = await _dbHelper.database;
-    if (isCompleted) {
-      await db.delete(
-        'habit_logs',
-        where: 'habit_id = ? AND completed_date = ?',
-        whereArgs: [habitId, dateStr],
+    await db.transaction((txn) async {
+      if (isCompleted) {
+        // User unchecking habit: delete log and revoke XP
+        await txn.delete(
+          'habit_logs',
+          where: 'habit_id = ? AND completed_date = ?',
+          whereArgs: [habitId, dateStr],
+        );
+
+        await txn.update(
+          'xp_ledger',
+          {'status': XpStatus.revoked},
+          where: 'source_type = ? AND source_id = ? AND event_date = ?',
+          whereArgs: [XpSourceType.habitCheckin, habitId, dateStr],
+        );
+      } else {
+        // User checking habit: insert log and award/reactivate XP
+        await txn.insert('habit_logs', {
+          'habit_id': habitId,
+          'completed_date': dateStr,
+        }, conflictAlgorithm: ConflictAlgorithm.ignore);
+
+        // Check if ledger entry already exists (anti-farming protection)
+        final existing = await txn.query(
+          'xp_ledger',
+          where: 'source_type = ? AND source_id = ? AND event_date = ?',
+          whereArgs: [XpSourceType.habitCheckin, habitId, dateStr],
+        );
+
+        if (existing.isNotEmpty) {
+          // Reactivate existing reward without granting duplicate XP
+          await txn.update(
+            'xp_ledger',
+            {'status': XpStatus.active},
+            where: 'id = ?',
+            whereArgs: [existing.first['id']],
+          );
+        } else {
+          // First time check-in for this date
+          final allDates = await txn.query(
+            'habit_logs',
+            columns: ['completed_date'],
+            where: 'habit_id = ?',
+            whereArgs: [habitId],
+          );
+          final dateSet = allDates
+              .map((r) => r['completed_date'] as String)
+              .toSet();
+          final streak = AppDateUtils.calculateStreak(dateSet);
+          final xp = GamificationMath.calculateCheckinXp(streak);
+
+          await txn.insert('xp_ledger', {
+            'source_type': XpSourceType.habitCheckin,
+            'source_id': habitId,
+            'event_date': dateStr,
+            'xp_amount': xp,
+            'status': XpStatus.active,
+            'created_at': DateTime.now().toIso8601String(),
+          }, conflictAlgorithm: ConflictAlgorithm.ignore);
+        }
+      }
+
+      // Keep user_profile in sync atomically
+      final sumResult = await txn.rawQuery(
+        "SELECT COALESCE(SUM(xp_amount), 0) as total FROM xp_ledger WHERE status = 'ACTIVE'",
       );
-    } else {
-      await db.insert('habit_logs', {
-        'habit_id': habitId,
-        'completed_date': dateStr,
+      final newTotalXp = sumResult.isNotEmpty
+          ? (sumResult.first['total'] as int? ?? 0)
+          : 0;
+      final newLevel = GamificationMath.calculateLevel(newTotalXp);
+
+      await txn.update('user_profile', {
+        'total_xp': newTotalXp,
+        'current_level': newLevel,
       });
-    }
+    });
   }
 
   @override
@@ -139,6 +210,7 @@ class SqliteHabitRepository implements HabitRepository {
         'created_at': habit.createdAt.toIso8601String(),
         'category': habit.category,
         'color_value': habit.colorValue,
+        'is_archived': habit.isArchived ? 1 : 0,
       };
       if (habit.id != null) {
         habitMap['id'] = habit.id;
@@ -150,8 +222,44 @@ class SqliteHabitRepository implements HabitRepository {
         await txn.insert('habit_logs', {
           'habit_id': habitId,
           'completed_date': dateStr,
-        });
+        }, conflictAlgorithm: ConflictAlgorithm.ignore);
+
+        final existing = await txn.query(
+          'xp_ledger',
+          where: 'source_type = ? AND source_id = ? AND event_date = ?',
+          whereArgs: [XpSourceType.habitCheckin, habitId, dateStr],
+        );
+        if (existing.isNotEmpty) {
+          await txn.update(
+            'xp_ledger',
+            {'status': XpStatus.active},
+            where: 'id = ?',
+            whereArgs: [existing.first['id']],
+          );
+        } else {
+          await txn.insert('xp_ledger', {
+            'source_type': XpSourceType.habitCheckin,
+            'source_id': habitId,
+            'event_date': dateStr,
+            'xp_amount': GamificationMath.baseCheckinXp,
+            'status': XpStatus.active,
+            'created_at': DateTime.now().toIso8601String(),
+          }, conflictAlgorithm: ConflictAlgorithm.ignore);
+        }
       }
+
+      final sumResult = await txn.rawQuery(
+        "SELECT COALESCE(SUM(xp_amount), 0) as total FROM xp_ledger WHERE status = 'ACTIVE'",
+      );
+      final newTotalXp = sumResult.isNotEmpty
+          ? (sumResult.first['total'] as int? ?? 0)
+          : 0;
+      final newLevel = GamificationMath.calculateLevel(newTotalXp);
+
+      await txn.update('user_profile', {
+        'total_xp': newTotalXp,
+        'current_level': newLevel,
+      });
     });
   }
 }
@@ -159,4 +267,3 @@ class SqliteHabitRepository implements HabitRepository {
 final habitRepositoryProvider = Provider<HabitRepository>((ref) {
   return SqliteHabitRepository();
 });
-

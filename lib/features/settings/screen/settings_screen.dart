@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../core/services/haptics_service.dart';
 import '../../../core/theme/theme_provider.dart';
+import '../controllers/settings_controller.dart';
 
 class SettingsScreen extends ConsumerStatefulWidget {
   const SettingsScreen({super.key});
@@ -11,7 +12,6 @@ class SettingsScreen extends ConsumerStatefulWidget {
 }
 
 class _SettingsScreenState extends ConsumerState<SettingsScreen> {
-  bool _hapticsEnabled = true;
   TimeOfDay _reminderTime = const TimeOfDay(hour: 8, minute: 0);
 
   @override
@@ -19,6 +19,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
     final currentThemeMode = ref.watch(themeModeProvider);
+    final settings = ref.watch(settingsControllerProvider);
+    final hapticsEnabled = settings.hapticsEnabled;
 
     return Scaffold(
       appBar: AppBar(
@@ -55,8 +57,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                         currentThemeMode == ThemeMode.dark
                             ? Icons.dark_mode
                             : currentThemeMode == ThemeMode.light
-                                ? Icons.light_mode
-                                : Icons.brightness_auto,
+                            ? Icons.light_mode
+                            : Icons.brightness_auto,
                         size: 20,
                         color: theme.colorScheme.primary,
                       ),
@@ -93,11 +95,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                       ],
                       selected: {currentThemeMode},
                       onSelectionChanged: (newSelection) {
-                        if (_hapticsEnabled) {
-                          HapticFeedback.lightImpact();
-                        }
+                        ref.read(hapticsServiceProvider).lightImpact();
                         ref
-                            .read(themeModeProvider.notifier)
+                            .read(settingsControllerProvider.notifier)
                             .setThemeMode(newSelection.first);
                       },
                     ),
@@ -122,12 +122,12 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     ),
                     value: currentThemeMode == ThemeMode.dark,
                     onChanged: (bool value) {
-                      if (_hapticsEnabled) {
-                        HapticFeedback.lightImpact();
-                      }
+                      ref.read(hapticsServiceProvider).lightImpact();
                       ref
-                          .read(themeModeProvider.notifier)
-                          .setThemeMode(value ? ThemeMode.dark : ThemeMode.light);
+                          .read(settingsControllerProvider.notifier)
+                          .setThemeMode(
+                            value ? ThemeMode.dark : ThemeMode.light,
+                          );
                     },
                   ),
                 ],
@@ -163,13 +163,13 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     'Vibrate on checking habits and completing timers',
                     style: TextStyle(fontSize: 12),
                   ),
-                  value: _hapticsEnabled,
+                  value: hapticsEnabled,
                   onChanged: (val) {
-                    setState(() {
-                      _hapticsEnabled = val;
-                    });
+                    ref
+                        .read(settingsControllerProvider.notifier)
+                        .setHapticsEnabled(val);
                     if (val) {
-                      HapticFeedback.lightImpact();
+                      ref.read(hapticsServiceProvider).lightImpact();
                     }
                   },
                 ),
@@ -231,4 +231,3 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     );
   }
 }
-

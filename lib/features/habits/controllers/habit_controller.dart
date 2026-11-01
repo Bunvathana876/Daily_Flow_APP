@@ -1,5 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/constants/app_constants.dart';
+import '../../../core/utils/date_utils.dart';
+import '../../gamification/controllers/gamification_controller.dart';
 import '../data/habit_repository.dart';
 import '../models/habit.dart';
 
@@ -77,8 +79,23 @@ class HabitController extends Notifier<List<Habit>> {
 
     if (isCurrentlyCompleted) {
       updatedDates.remove(dateStr);
+      try {
+        await ref
+            .read(gamificationControllerProvider.notifier)
+            .revokeHabitCheckin(habitId: habit.id!, dateStr: dateStr);
+      } catch (_) {}
     } else {
       updatedDates.add(dateStr);
+      final currentStreak = AppDateUtils.calculateStreak(updatedDates);
+      try {
+        await ref
+            .read(gamificationControllerProvider.notifier)
+            .awardHabitCheckin(
+              habitId: habit.id!,
+              dateStr: dateStr,
+              currentStreak: currentStreak,
+            );
+      } catch (_) {}
     }
 
     state = [
@@ -98,5 +115,6 @@ class HabitController extends Notifier<List<Habit>> {
   }
 }
 
-final habitControllerProvider =
-    NotifierProvider<HabitController, List<Habit>>(HabitController.new);
+final habitControllerProvider = NotifierProvider<HabitController, List<Habit>>(
+  HabitController.new,
+);

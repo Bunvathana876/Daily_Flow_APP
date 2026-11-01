@@ -7,6 +7,7 @@ class Habit {
   final Set<String> completedDates;
   final String category;
   final int colorValue;
+  final bool isArchived;
 
   Habit({
     this.id,
@@ -15,6 +16,7 @@ class Habit {
     required this.completedDates,
     this.category = 'General',
     this.colorValue = 0xFF4F46E5,
+    this.isArchived = false,
   });
 
   static String formatDate(DateTime date) => AppDateUtils.formatDate(date);
@@ -35,6 +37,7 @@ class Habit {
     Set<String>? completedDates,
     String? category,
     int? colorValue,
+    bool? isArchived,
   }) {
     return Habit(
       id: id ?? this.id,
@@ -43,6 +46,7 @@ class Habit {
       completedDates: completedDates ?? this.completedDates,
       category: category ?? this.category,
       colorValue: colorValue ?? this.colorValue,
+      isArchived: isArchived ?? this.isArchived,
     );
   }
 }

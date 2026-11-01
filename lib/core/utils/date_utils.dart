@@ -66,7 +66,10 @@ class AppDateUtils {
   /// Returns the last 7 days as DateTime objects (ordered oldest to newest, ending today)
   static List<DateTime> getLast7Days([DateTime? referenceDate]) {
     final base = referenceDate ?? DateTime.now();
-    return List.generate(7, (index) => base.subtract(Duration(days: 6 - index)));
+    return List.generate(
+      7,
+      (index) => base.subtract(Duration(days: 6 - index)),
+    );
   }
 
   /// Returns the last 7 days as DayInfo (ordered oldest to newest, ending today)
@@ -84,7 +87,10 @@ class AppDateUtils {
   }
 
   /// Calculates consecutive completed days up to today or yesterday
-  static int calculateStreak(Set<String> completedDates, [DateTime? referenceDate]) {
+  static int calculateStreak(
+    Set<String> completedDates, [
+    DateTime? referenceDate,
+  ]) {
     if (completedDates.isEmpty) return 0;
 
     int streak = 0;
@@ -112,12 +118,13 @@ class AppDateUtils {
   static int calculateBestStreak(Set<String> completedDates) {
     if (completedDates.isEmpty) return 0;
 
-    final sortedDates = completedDates
-        .map((d) => DateTime.parse(d))
-        .map((d) => DateTime(d.year, d.month, d.day))
-        .toSet()
-        .toList()
-      ..sort((a, b) => a.compareTo(b));
+    final sortedDates =
+        completedDates
+            .map((d) => DateTime.parse(d))
+            .map((d) => DateTime(d.year, d.month, d.day))
+            .toSet()
+            .toList()
+          ..sort((a, b) => a.compareTo(b));
 
     int maxStreak = 0;
     int currentStreak = 0;

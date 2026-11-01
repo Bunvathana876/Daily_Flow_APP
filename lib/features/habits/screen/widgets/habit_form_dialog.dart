@@ -1,26 +1,23 @@
 import 'package:flutter/material.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../models/habit.dart';
+import 'quest_form_sheet.dart';
 
+/// Legacy HabitFormDialog interface that delegates to the upgraded [QuestFormSheet]
+/// bottom sheet experience while preserving backward compatibility.
 class HabitFormDialog extends StatefulWidget {
   final Habit? habit;
   final void Function(String title, String category, int colorValue) onSave;
 
-  const HabitFormDialog({
-    super.key,
-    this.habit,
-    required this.onSave,
-  });
+  const HabitFormDialog({super.key, this.habit, required this.onSave});
 
   static Future<void> show(
     BuildContext context, {
     Habit? habit,
-    required void Function(String title, String category, int colorValue) onSave,
+    required void Function(String title, String category, int colorValue)
+    onSave,
   }) {
-    return showDialog(
-      context: context,
-      builder: (ctx) => HabitFormDialog(habit: habit, onSave: onSave),
-    );
+    return QuestFormSheet.show(context, habit: habit, onSave: onSave);
   }
 
   @override
@@ -36,8 +33,10 @@ class _HabitFormDialogState extends State<HabitFormDialog> {
   void initState() {
     super.initState();
     _titleController = TextEditingController(text: widget.habit?.title ?? '');
-    _selectedCategory = widget.habit?.category ?? AppConstants.habitCategories.first;
-    _selectedColor = widget.habit?.colorValue ?? AppConstants.availableColors.first;
+    _selectedCategory =
+        widget.habit?.category ?? AppConstants.habitCategories.first;
+    _selectedColor =
+        widget.habit?.colorValue ?? AppConstants.availableColors.first;
   }
 
   @override
@@ -57,7 +56,7 @@ class _HabitFormDialogState extends State<HabitFormDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: Text(widget.habit == null ? 'New Habit' : 'Edit Habit'),
+      title: Text(widget.habit == null ? 'New Quest' : 'Edit Quest'),
       content: SingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -68,7 +67,7 @@ class _HabitFormDialogState extends State<HabitFormDialog> {
               autofocus: true,
               textCapitalization: TextCapitalization.sentences,
               decoration: const InputDecoration(
-                labelText: 'Habit Title',
+                labelText: 'Quest Title',
                 hintText: 'e.g., Drink 2L Water, Study 45 mins',
                 border: OutlineInputBorder(),
               ),
@@ -142,12 +141,8 @@ class _HabitFormDialogState extends State<HabitFormDialog> {
           onPressed: () => Navigator.of(context).pop(),
           child: const Text('Cancel'),
         ),
-        FilledButton(
-          onPressed: _submit,
-          child: const Text('Save'),
-        ),
+        FilledButton(onPressed: _submit, child: const Text('Save')),
       ],
     );
   }
 }
-

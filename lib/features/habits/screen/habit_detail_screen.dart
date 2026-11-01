@@ -31,7 +31,9 @@ class _HabitDetailScreenState extends ConsumerState<HabitDetailScreen> {
       context,
       habit: habit,
       onSave: (title, category, colorValue) {
-        ref.read(habitControllerProvider.notifier).editHabit(
+        ref
+            .read(habitControllerProvider.notifier)
+            .editHabit(
               habit.id!,
               title,
               category: category,
@@ -65,7 +67,9 @@ class _HabitDetailScreenState extends ConsumerState<HabitDetailScreen> {
                   action: SnackBarAction(
                     label: 'Undo',
                     onPressed: () {
-                      ref.read(habitControllerProvider.notifier).restoreHabit(habit);
+                      ref
+                          .read(habitControllerProvider.notifier)
+                          .restoreHabit(habit);
                     },
                   ),
                 ),
@@ -129,8 +133,10 @@ class _HabitDetailScreenState extends ConsumerState<HabitDetailScreen> {
             Row(
               children: [
                 Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
                     color: accentColor.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(8),
@@ -333,17 +339,17 @@ class _HabitDetailScreenState extends ConsumerState<HabitDetailScreen> {
                     color: isCompleted
                         ? accentColor
                         : (isToday
-                            ? accentColor.withValues(alpha: 0.1)
-                            : Colors.transparent),
+                              ? accentColor.withValues(alpha: 0.1)
+                              : Colors.transparent),
                     shape: BoxShape.circle,
                     border: Border.all(
                       color: isToday
                           ? accentColor
                           : (isCompleted
-                              ? accentColor
-                              : (isDark
-                                  ? Colors.white10
-                                  : Colors.grey.shade200)),
+                                ? accentColor
+                                : (isDark
+                                      ? Colors.white10
+                                      : Colors.grey.shade200)),
                       width: isToday ? 2 : 1,
                     ),
                   ),
@@ -352,13 +358,16 @@ class _HabitDetailScreenState extends ConsumerState<HabitDetailScreen> {
                       '$dayNumber',
                       style: TextStyle(
                         fontSize: 13,
-                        fontWeight:
-                            (isToday || isCompleted) ? FontWeight.bold : FontWeight.normal,
+                        fontWeight: (isToday || isCompleted)
+                            ? FontWeight.bold
+                            : FontWeight.normal,
                         color: isCompleted
                             ? Colors.white
                             : (isFuture
-                                ? (isDark ? Colors.white24 : Colors.grey.shade400)
-                                : (isDark ? Colors.white : Colors.black87)),
+                                  ? (isDark
+                                        ? Colors.white24
+                                        : Colors.grey.shade400)
+                                  : (isDark ? Colors.white : Colors.black87)),
                       ),
                     ),
                   ),
@@ -419,10 +428,7 @@ class _DetailStatCard extends StatelessWidget {
           const SizedBox(height: 8),
           Text(
             value,
-            style: const TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-            ),
+            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 2),
           Text(
@@ -439,4 +445,3 @@ class _DetailStatCard extends StatelessWidget {
     );
   }
 }
-

@@ -30,10 +30,13 @@ void main() {
       expect(AppDateUtils.calculateStreak(dates, fixedToday), 4);
     });
 
-    test('returns consecutive streak up to yesterday when today not completed yet', () {
-      final dates = {'2026-10-17', '2026-10-16', '2026-10-15'};
-      expect(AppDateUtils.calculateStreak(dates, fixedToday), 3);
-    });
+    test(
+      'returns consecutive streak up to yesterday when today not completed yet',
+      () {
+        final dates = {'2026-10-17', '2026-10-16', '2026-10-15'};
+        expect(AppDateUtils.calculateStreak(dates, fixedToday), 3);
+      },
+    );
 
     test('breaks streak on missed day', () {
       final dates = {'2026-10-18', '2026-10-17', '2026-10-15'};
@@ -50,28 +53,26 @@ void main() {
       expect(AppDateUtils.calculateBestStreak({'2026-10-01'}), 1);
     });
 
-    test('returns longest consecutive streak even if current streak is broken', () {
-      // Streak 1: 4 days (Oct 1 to Oct 4)
-      // Break: Oct 5-9
-      // Streak 2: 2 days (Oct 10-11)
-      final dates = {
-        '2026-10-01',
-        '2026-10-02',
-        '2026-10-03',
-        '2026-10-04',
-        '2026-10-10',
-        '2026-10-11',
-      };
-      expect(AppDateUtils.calculateBestStreak(dates), 4);
-    });
+    test(
+      'returns longest consecutive streak even if current streak is broken',
+      () {
+        // Streak 1: 4 days (Oct 1 to Oct 4)
+        // Break: Oct 5-9
+        // Streak 2: 2 days (Oct 10-11)
+        final dates = {
+          '2026-10-01',
+          '2026-10-02',
+          '2026-10-03',
+          '2026-10-04',
+          '2026-10-10',
+          '2026-10-11',
+        };
+        expect(AppDateUtils.calculateBestStreak(dates), 4);
+      },
+    );
 
     test('correctly handles month boundary transitions', () {
-      final dates = {
-        '2026-09-29',
-        '2026-09-30',
-        '2026-10-01',
-        '2026-10-02',
-      };
+      final dates = {'2026-09-29', '2026-09-30', '2026-10-01', '2026-10-02'};
       expect(AppDateUtils.calculateBestStreak(dates), 4);
     });
   });
@@ -86,17 +87,20 @@ void main() {
       expect(AppDateUtils.formatDate(days.first), '2026-10-12');
     });
 
-    test('getLast7DaysWithLabels returns 7 DayInfo objects with correct labels', () {
-      final days = AppDateUtils.getLast7DaysWithLabels(fixedToday);
-      expect(days.length, 7);
-      expect(days.last.dateStr, '2026-10-18');
-      expect(days.last.label, 'S'); // Sunday
-      expect(days.first.dateStr, '2026-10-12');
-      expect(days.first.label, 'M'); // Monday
+    test(
+      'getLast7DaysWithLabels returns 7 DayInfo objects with correct labels',
+      () {
+        final days = AppDateUtils.getLast7DaysWithLabels(fixedToday);
+        expect(days.length, 7);
+        expect(days.last.dateStr, '2026-10-18');
+        expect(days.last.label, 'S'); // Sunday
+        expect(days.first.dateStr, '2026-10-12');
+        expect(days.first.label, 'M'); // Monday
 
-      final labels = days.map((d) => d.label).toList();
-      expect(labels, ['M', 'T', 'W', 'T', 'F', 'S', 'S']);
-    });
+        final labels = days.map((d) => d.label).toList();
+        expect(labels, ['M', 'T', 'W', 'T', 'F', 'S', 'S']);
+      },
+    );
 
     test('getDayLabel returns correct single-letter day codes', () {
       expect(AppDateUtils.getDayLabel(DateTime(2026, 10, 12)), 'M'); // Mon
