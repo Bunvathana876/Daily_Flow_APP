@@ -1,19 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/theme/rpg_colors.dart';
-import '../../../../core/theme/rpg_spacing.dart';
 import '../../../../core/utils/gamification_math.dart';
+import '../../../../core/widgets/compact_xp_indicator.dart';
+import '../../../../core/widgets/hero_avatar_frame.dart';
 import '../../../../core/widgets/level_badge.dart';
-import '../../../../core/widgets/xp_progress_bar.dart';
 import '../../../gamification/controllers/gamification_controller.dart';
-import '../../../gamification/widgets/hero_avatar_badge.dart';
 import '../../models/habit.dart';
 
-/// Immersive Hero Dashboard HUD displaying player level, rank, XP progression,
-/// active streak, and achievement indicators.
+/// Immersive Cozy Adventure RPG Hero Dashboard HUD displaying player avatar portrait,
+/// level, rank, XP progression bar, active streak, and achievement indicators.
 ///
-/// Features a sculpted hero avatar crest, atmospheric fantasy mountain & constellation
-/// scene, metallic gold level badge, and responsive layouts that adapt to 320px screens.
+/// Features the canonical hero portrait artwork in an ornate golden laurel frame,
+/// atmospheric twilight village scenery, metallic level badge, and responsive 320px layout.
 class HeroXpHud extends ConsumerWidget {
   final List<Habit> habits;
 
@@ -51,9 +50,9 @@ class HeroXpHud extends ConsumerWidget {
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
                 colors: [
-                  Color(0xFF1B1F4A), // Rich Twilight Indigo
-                  Color(0xFF131832), // Midnight Slate
-                  Color(0xFF0B0E1B), // Abyss Navy
+                  Color(0xFF1E254F), // Twilight Indigo
+                  Color(0xFF151B38), // Midnight Slate
+                  Color(0xFF0D1226), // Deep Abyss
                 ],
               )
             : const LinearGradient(
@@ -65,19 +64,19 @@ class HeroXpHud extends ConsumerWidget {
                   Color(0xFFEEF2FF),
                 ],
               ),
-        borderRadius: BorderRadius.circular(RpgSpacing.radiusCard),
+        borderRadius: BorderRadius.circular(16.0),
         border: Border.all(
           color: isDark
-              ? RpgColors.rpgGold.withValues(alpha: 0.38)
+              ? RpgColors.warmGold.withValues(alpha: 0.38)
               : RpgColors.rpgIndigo.withValues(alpha: 0.22),
           width: 1.2,
         ),
         boxShadow: [
           BoxShadow(
             color: isDark
-                ? RpgColors.rpgViolet.withValues(alpha: 0.22)
+                ? RpgColors.mutedViolet.withValues(alpha: 0.25)
                 : RpgColors.rpgIndigo.withValues(alpha: 0.08),
-            blurRadius: 14,
+            blurRadius: 12,
             spreadRadius: 1,
             offset: const Offset(0, 3),
           ),
@@ -89,7 +88,7 @@ class HeroXpHud extends ConsumerWidget {
         ],
       ),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(RpgSpacing.radiusCard),
+        borderRadius: BorderRadius.circular(16.0),
         child: Stack(
           children: [
             // Atmospheric fantasy background artwork (starfield, aurora, mountain ridges)
@@ -98,9 +97,9 @@ class HeroXpHud extends ConsumerWidget {
                 painter: _HeroAtmosphereScenePainter(
                   isDark: isDark,
                   primaryColor: isDark
-                      ? RpgColors.rpgViolet
+                      ? RpgColors.mutedViolet
                       : RpgColors.rpgIndigo,
-                  accentColor: RpgColors.rpgGold,
+                  accentColor: RpgColors.warmGold,
                 ),
               ),
             ),
@@ -110,9 +109,9 @@ class HeroXpHud extends ConsumerWidget {
               top: 0,
               left: 0,
               child: CustomPaint(
-                size: const Size(18, 18),
+                size: const Size(16, 16),
                 painter: _HeroCornerPainter(
-                  color: isDark ? RpgColors.rpgGold : RpgColors.rpgIndigo,
+                  color: isDark ? RpgColors.warmGold : RpgColors.rpgIndigo,
                   isTop: true,
                   isLeft: true,
                 ),
@@ -122,9 +121,9 @@ class HeroXpHud extends ConsumerWidget {
               top: 0,
               right: 0,
               child: CustomPaint(
-                size: const Size(18, 18),
+                size: const Size(16, 16),
                 painter: _HeroCornerPainter(
-                  color: isDark ? RpgColors.rpgGold : RpgColors.rpgIndigo,
+                  color: isDark ? RpgColors.warmGold : RpgColors.rpgIndigo,
                   isTop: true,
                   isLeft: false,
                 ),
@@ -134,9 +133,9 @@ class HeroXpHud extends ConsumerWidget {
               bottom: 0,
               left: 0,
               child: CustomPaint(
-                size: const Size(18, 18),
+                size: const Size(16, 16),
                 painter: _HeroCornerPainter(
-                  color: isDark ? RpgColors.rpgGold : RpgColors.rpgIndigo,
+                  color: isDark ? RpgColors.warmGold : RpgColors.rpgIndigo,
                   isTop: false,
                   isLeft: true,
                 ),
@@ -146,9 +145,9 @@ class HeroXpHud extends ConsumerWidget {
               bottom: 0,
               right: 0,
               child: CustomPaint(
-                size: const Size(18, 18),
+                size: const Size(16, 16),
                 painter: _HeroCornerPainter(
-                  color: isDark ? RpgColors.rpgGold : RpgColors.rpgIndigo,
+                  color: isDark ? RpgColors.warmGold : RpgColors.rpgIndigo,
                   isTop: false,
                   isLeft: false,
                 ),
@@ -162,236 +161,296 @@ class HeroXpHud extends ConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  // Row 1: Illustrated Avatar Crest + Player Name & Rank + Golden Level Badge
+                  // Row 1: Hero Avatar Frame with laurel flourish + Player Name & Rank + Level Badge
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      // Sculpted Hero Avatar Crest with Rank Tier Bezel
-                      HeroAvatarBadge(
-                        avatarId: profile.avatarId,
-                        size: 46.0,
-                        playerLevel: currentLevel,
+                      // Golden Laurel Hero Avatar Frame (compact & prominent)
+                      const HeroAvatarFrame.heroDefault(
+                        size: 56.0,
+                        showFlourish: true,
                       ),
                       const SizedBox(width: 10),
 
-                      // Player Name & Title Rank
+                      // Player Name, Level, Rank & Compact XP Bar
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Text(
-                              profile.heroName,
-                              style: TextStyle(
-                                fontSize: 15,
-                                fontWeight: FontWeight.w800,
-                                color: isDark ? Colors.white : Colors.black87,
-                                letterSpacing: 0.2,
-                              ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                            const SizedBox(height: 2),
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 6,
-                                vertical: 1.5,
-                              ),
-                              decoration: BoxDecoration(
-                                color: isDark
-                                    ? RpgColors.arcaneViolet.withValues(
-                                        alpha: 0.18,
-                                      )
-                                    : RpgColors.arcaneViolet.withValues(
-                                        alpha: 0.10,
-                                      ),
-                                borderRadius: BorderRadius.circular(6),
-                                border: Border.all(
-                                  color: isDark
-                                      ? RpgColors.arcaneViolet.withValues(
-                                          alpha: 0.35,
-                                        )
-                                      : RpgColors.arcaneViolet.withValues(
-                                          alpha: 0.20,
-                                        ),
-                                  width: 0.8,
-                                ),
-                              ),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Icon(
-                                    Icons.shield_rounded,
-                                    size: 10,
-                                    color: isDark
-                                        ? RpgColors.arcaneVioletLight
-                                        : RpgColors.arcaneViolet,
+                            // Name row
+                            Row(
+                              children: [
+                                Flexible(
+                                  child: Text(
+                                    profile.heroName,
+                                    style: TextStyle(
+                                      fontSize: 15.5,
+                                      fontWeight: FontWeight.w800,
+                                      color: isDark
+                                          ? Colors.white
+                                          : Colors.black87,
+                                      letterSpacing: 0.2,
+                                    ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
                                   ),
-                                  const SizedBox(width: 3),
-                                  Flexible(
-                                    child: Text(
-                                      rankTitle,
-                                      style: TextStyle(
-                                        fontSize: 10.5,
-                                        fontWeight: FontWeight.w700,
+                                ),
+                                const SizedBox(width: 4),
+                                Icon(
+                                  Icons.edit_rounded,
+                                  size: 13,
+                                  color: isDark
+                                      ? RpgColors.warmGold.withValues(
+                                          alpha: 0.75,
+                                        )
+                                      : RpgColors.rpgIndigo.withValues(
+                                          alpha: 0.65,
+                                        ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 3),
+
+                            // Level Badge & RPG Rank Pill
+                            Row(
+                              children: [
+                                LevelBadge(level: currentLevel, compact: true),
+                                const SizedBox(width: 6),
+                                Flexible(
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 6,
+                                      vertical: 1.5,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: isDark
+                                          ? RpgColors.arcaneViolet.withValues(
+                                              alpha: 0.22,
+                                            )
+                                          : RpgColors.arcaneViolet.withValues(
+                                              alpha: 0.12,
+                                            ),
+                                      borderRadius: BorderRadius.circular(8),
+                                      border: Border.all(
                                         color: isDark
-                                            ? RpgColors.arcaneVioletLight
-                                            : RpgColors.arcaneViolet,
-                                        letterSpacing: 0.3,
+                                            ? RpgColors.arcaneViolet.withValues(
+                                                alpha: 0.45,
+                                              )
+                                            : RpgColors.arcaneViolet.withValues(
+                                                alpha: 0.25,
+                                              ),
+                                        width: 0.8,
                                       ),
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Icon(
+                                          Icons.military_tech_rounded,
+                                          size: 11,
+                                          color: isDark
+                                              ? RpgColors.arcaneVioletLight
+                                              : RpgColors.arcaneViolet,
+                                        ),
+                                        const SizedBox(width: 3),
+                                        Flexible(
+                                          child: Text(
+                                            rankTitle,
+                                            style: TextStyle(
+                                              fontSize: 10,
+                                              fontWeight: FontWeight.w700,
+                                              color: isDark
+                                                  ? RpgColors.arcaneVioletLight
+                                                  : RpgColors.arcaneViolet,
+                                              letterSpacing: 0.3,
+                                            ),
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                        ),
+                                      ],
                                     ),
                                   ),
-                                ],
-                              ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 5),
+
+                            // Compact XP Bar
+                            CompactXpBar(
+                              currentXp: xpInLevel,
+                              requiredXp: xpNeeded,
+                              progressRatio: progressRatio,
+                              height: 5.0,
+                              showLabel: true,
                             ),
                           ],
                         ),
                       ),
-                      const SizedBox(width: RpgSpacing.xs),
-
-                      // Golden Level Badge
-                      LevelBadge(level: currentLevel, compact: true),
                     ],
                   ),
                   const SizedBox(height: 8),
 
-                  // Row 2: Rich XP Progress Bar
-                  XpProgressBar(
-                    currentXp: xpInLevel,
-                    requiredXp: xpNeeded,
-                    progressRatio: progressRatio,
-                    height: 6.5,
-                    leadingLabel: 'LVL $currentLevel XP',
-                  ),
-                  const SizedBox(height: 6),
-
-                  // Row 3: Statistics Ribbon (Total XP, Streak, Achievements) - Wrap for 320px responsiveness
-                  Wrap(
-                    spacing: 6,
-                    runSpacing: 4,
-                    alignment: WrapAlignment.spaceBetween,
-                    crossAxisAlignment: WrapCrossAlignment.center,
+                  // Row 2: 3 Compact KPI Stat Cards (Day Streak, Badges, Total XP)
+                  Row(
                     children: [
-                      // Total XP Counter
-                      Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const Icon(
-                            Icons.auto_awesome_rounded,
-                            size: 13,
-                            color: RpgColors.rpgGold,
+                      // Card 1: Day Streak
+                      Expanded(
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 4,
+                            vertical: 5,
                           ),
-                          const SizedBox(width: 4),
-                          Text(
-                            '$totalXp Total XP',
-                            style: TextStyle(
-                              fontSize: 11,
-                              fontWeight: FontWeight.w700,
-                              color: isDark ? Colors.white70 : Colors.black87,
+                          decoration: BoxDecoration(
+                            color: isDark
+                                ? const Color(0xFF131830)
+                                : const Color(0xFFF1F5F9),
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(
+                              color: isDark
+                                  ? (bestStreak > 0
+                                        ? Colors.deepOrange.withValues(
+                                            alpha: 0.35,
+                                          )
+                                        : const Color(0xFF242E50))
+                                  : (bestStreak > 0
+                                        ? Colors.deepOrange.withValues(
+                                            alpha: 0.25,
+                                          )
+                                        : const Color(0xFFE2E8F0)),
+                              width: 0.8,
                             ),
                           ),
-                        ],
-                      ),
-
-                      // Current Streak Pill
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 6,
-                          vertical: 2,
-                        ),
-                        decoration: BoxDecoration(
-                          color: bestStreak > 0
-                              ? Colors.deepOrange.withValues(
-                                  alpha: isDark ? 0.18 : 0.12,
-                                )
-                              : (isDark
-                                    ? Colors.white10
-                                    : Colors.grey.shade100),
-                          borderRadius: RpgSpacing.roundedPill,
-                          border: Border.all(
-                            color: bestStreak > 0
-                                ? Colors.deepOrange.withValues(
-                                    alpha: isDark ? 0.40 : 0.25,
-                                  )
-                                : (isDark
-                                      ? Colors.white12
-                                      : Colors.grey.shade300),
-                            width: 0.8,
-                          ),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(
-                              Icons.local_fire_department_rounded,
-                              size: 13,
-                              color: bestStreak > 0
-                                  ? Colors.deepOrange
-                                  : (isDark
-                                        ? Colors.grey.shade400
-                                        : Colors.grey),
-                            ),
-                            const SizedBox(width: 2),
-                            Text(
-                              bestStreak > 0
-                                  ? '$bestStreak-day Streak'
-                                  : '0 Streak',
-                              style: TextStyle(
-                                fontSize: 10,
-                                fontWeight: FontWeight.bold,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.local_fire_department_rounded,
+                                size: 14,
                                 color: bestStreak > 0
                                     ? Colors.deepOrange
                                     : (isDark
-                                          ? Colors.grey.shade400
-                                          : Colors.grey.shade600),
+                                          ? Colors.grey.shade500
+                                          : Colors.grey),
                               ),
-                            ),
-                          ],
-                        ),
-                      ),
-
-                      // Achievement Trophy Count
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 6,
-                          vertical: 2,
-                        ),
-                        decoration: BoxDecoration(
-                          color: isDark
-                              ? RpgColors.arcaneViolet.withValues(alpha: 0.16)
-                              : RpgColors.arcaneViolet.withValues(alpha: 0.10),
-                          borderRadius: RpgSpacing.roundedPill,
-                          border: Border.all(
-                            color: RpgColors.arcaneViolet.withValues(
-                              alpha: isDark ? 0.35 : 0.20,
-                            ),
-                            width: 0.8,
+                              const SizedBox(width: 3),
+                              Flexible(
+                                child: Text(
+                                  bestStreak > 0
+                                      ? '$bestStreak-day Streak'
+                                      : '0 Streak',
+                                  style: TextStyle(
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.w700,
+                                    color: bestStreak > 0
+                                        ? Colors.deepOrange
+                                        : (isDark
+                                              ? Colors.grey.shade400
+                                              : Colors.grey.shade600),
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(
-                              Icons.military_tech_rounded,
-                              size: 13,
+                      ),
+                      const SizedBox(width: 5),
+
+                      // Card 2: Badges
+                      Expanded(
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 4,
+                            vertical: 5,
+                          ),
+                          decoration: BoxDecoration(
+                            color: isDark
+                                ? const Color(0xFF131830)
+                                : const Color(0xFFF1F5F9),
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(
                               color: isDark
-                                  ? RpgColors.arcaneVioletLight
-                                  : RpgColors.arcaneViolet,
+                                  ? const Color(0xFF242E50)
+                                  : const Color(0xFFE2E8F0),
+                              width: 0.8,
                             ),
-                            const SizedBox(width: 2),
-                            Text(
-                              '$unlockedAchievementsCount Badges',
-                              style: TextStyle(
-                                fontSize: 10,
-                                fontWeight: FontWeight.bold,
-                                color: isDark
-                                    ? RpgColors.arcaneVioletLight
-                                    : RpgColors.arcaneViolet,
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Icon(
+                                Icons.military_tech_rounded,
+                                size: 14,
+                                color: RpgColors.warmGold,
                               ),
+                              const SizedBox(width: 3),
+                              Flexible(
+                                child: Text(
+                                  '$unlockedAchievementsCount Badges',
+                                  style: TextStyle(
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.w700,
+                                    color: isDark
+                                        ? RpgColors.warmGold
+                                        : const Color(0xFFB45309),
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 5),
+
+                      // Card 3: Total XP
+                      Expanded(
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 4,
+                            vertical: 5,
+                          ),
+                          decoration: BoxDecoration(
+                            color: isDark
+                                ? const Color(0xFF131830)
+                                : const Color(0xFFF1F5F9),
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(
+                              color: isDark
+                                  ? const Color(0xFF242E50)
+                                  : const Color(0xFFE2E8F0),
+                              width: 0.8,
                             ),
-                          ],
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Icon(
+                                Icons.auto_awesome_rounded,
+                                size: 14,
+                                color: RpgColors.rpgGold,
+                              ),
+                              const SizedBox(width: 3),
+                              Flexible(
+                                child: Text(
+                                  '$totalXp Total XP',
+                                  style: TextStyle(
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.w700,
+                                    color: isDark
+                                        ? RpgColors.rpgGold
+                                        : const Color(0xFFB45309),
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ],
@@ -423,30 +482,30 @@ class _HeroAtmosphereScenePainter extends CustomPainter {
     final w = size.width;
     final h = size.height;
 
-    // 1. Soft Arcane Celestial Aura behind the Avatar crest (approx x: 40, y: 36)
-    final auraCenter = const Offset(40, 36);
+    // 1. Soft Arcane Celestial Aura behind the Avatar frame
+    final auraCenter = const Offset(38, 38);
     final auraPaint = Paint()
       ..shader = RadialGradient(
         colors: [
-          primaryColor.withValues(alpha: isDark ? 0.24 : 0.12),
+          primaryColor.withValues(alpha: isDark ? 0.28 : 0.12),
           Colors.transparent,
         ],
         stops: const [0.0, 1.0],
-      ).createShader(Rect.fromCircle(center: auraCenter, radius: 76));
-    canvas.drawCircle(auraCenter, 76, auraPaint);
+      ).createShader(Rect.fromCircle(center: auraCenter, radius: 68));
+    canvas.drawCircle(auraCenter, 68, auraPaint);
 
     // 2. Starfield & Arcane Dust in dark mode
     if (isDark) {
       final starPaint = Paint()..style = PaintingStyle.fill;
       final stars = [
-        Offset(w * 0.26, h * 0.15),
-        Offset(w * 0.46, h * 0.20),
-        Offset(w * 0.62, h * 0.12),
-        Offset(w * 0.74, h * 0.26),
-        Offset(w * 0.86, h * 0.16),
-        Offset(w * 0.93, h * 0.32),
-        Offset(w * 0.36, h * 0.38),
-        Offset(w * 0.80, h * 0.44),
+        Offset(w * 0.32, h * 0.14),
+        Offset(w * 0.50, h * 0.18),
+        Offset(w * 0.65, h * 0.12),
+        Offset(w * 0.78, h * 0.22),
+        Offset(w * 0.88, h * 0.15),
+        Offset(w * 0.94, h * 0.30),
+        Offset(w * 0.40, h * 0.35),
+        Offset(w * 0.82, h * 0.40),
       ];
 
       for (int i = 0; i < stars.length; i++) {

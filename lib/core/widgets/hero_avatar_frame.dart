@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../theme/cozy_artwork.dart';
 import '../theme/rpg_colors.dart';
 
 /// Ornate Cozy Adventure RPG Hero Avatar Frame.
@@ -27,6 +28,19 @@ class HeroAvatarFrame extends StatelessWidget {
     this.showFlourish = true,
     this.showEditBadge = false,
   });
+
+  /// Convenient constructor for rendering the canonical Cozy RPG Hero portrait.
+  const HeroAvatarFrame.heroDefault({
+    super.key,
+    this.size = 76.0,
+    this.fallbackIcon = Icons.person_rounded,
+    this.level,
+    this.onTap,
+    this.showFlourish = true,
+    this.showEditBadge = false,
+  }) : imageAsset = CozyArtwork.heroPortraitDefault,
+       imageProvider = null,
+       child = null;
 
   @override
   Widget build(BuildContext context) {
@@ -59,7 +73,7 @@ class HeroAvatarFrame extends StatelessWidget {
     Widget avatarCore;
     if (child != null) {
       avatarCore = child!;
-    } else if (imageAsset != null) {
+    } else if (imageAsset != null && imageAsset!.isNotEmpty) {
       avatarCore = SizedBox(
         width: size * 0.88,
         height: size * 0.88,

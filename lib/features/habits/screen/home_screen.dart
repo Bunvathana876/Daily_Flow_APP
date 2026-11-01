@@ -4,6 +4,8 @@ import '../../../core/constants/app_constants.dart';
 import '../../../core/services/haptics_service.dart';
 import '../../../core/theme/rpg_colors.dart';
 import '../../../core/theme/theme_provider.dart';
+import '../../../core/widgets/cozy_background.dart';
+import '../../../core/widgets/cozy_button.dart';
 import '../../../core/widgets/rpg_celebration_banner.dart';
 import '../../../core/widgets/rpg_crest.dart';
 import '../../../core/widgets/rpg_runic_divider.dart';
@@ -142,21 +144,56 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         ? habits
         : habits.where((h) => h.category == selectedCategory).toList();
 
-    return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+    return CozyBackgroundScaffold.village(
       appBar: AppBar(
         title: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(
-              Icons.shield_moon_rounded,
-              size: 22,
-              color: RpgColors.arcaneViolet,
+            Container(
+              padding: const EdgeInsets.all(5),
+              decoration: BoxDecoration(
+                color: isDark
+                    ? RpgColors.mutedViolet.withValues(alpha: 0.28)
+                    : RpgColors.rpgIndigo.withValues(alpha: 0.12),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                Icons.shield_moon_rounded,
+                size: 20,
+                color: RpgColors.arcaneViolet,
+              ),
             ),
             const SizedBox(width: 8),
-            const Text(
-              'DailyFlow',
-              style: TextStyle(fontWeight: FontWeight.w900, letterSpacing: 0.3),
+            Flexible(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Text(
+                    'DailyFlow',
+                    style: TextStyle(
+                      fontWeight: FontWeight.w900,
+                      fontSize: 18,
+                      letterSpacing: 0.3,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  Text(
+                    'Level Up Your Daily Life ✨',
+                    style: TextStyle(
+                      fontSize: 9.5,
+                      fontWeight: FontWeight.w600,
+                      color: isDark
+                          ? const Color(0xFFB0B9D0)
+                          : RpgColors.textSecondaryLight,
+                      letterSpacing: 0.2,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
             ),
           ],
         ),
@@ -176,7 +213,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       body: ListView(
         padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
         children: [
-          // 1. Hero XP HUD
+          // 1. Cozy Hero Dashboard HUD
           HeroXpHud(habits: habits),
           const SizedBox(height: 12),
 
@@ -201,7 +238,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     catIcon,
                     size: 14,
                     color: isSelected
-                        ? (isDark ? RpgColors.rpgGold : RpgColors.arcaneViolet)
+                        ? (isDark ? RpgColors.warmGold : RpgColors.arcaneViolet)
                         : (isDark
                               ? Colors.grey.shade400
                               : Colors.grey.shade600),
@@ -215,7 +252,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       ? RpgColors.arcaneViolet.withValues(alpha: 0.32)
                       : RpgColors.arcaneViolet.withValues(alpha: 0.16),
                   checkmarkColor: isDark
-                      ? RpgColors.rpgGold
+                      ? RpgColors.warmGold
                       : RpgColors.arcaneViolet,
                   labelStyle: TextStyle(
                     fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
@@ -229,7 +266,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     side: BorderSide(
                       color: isSelected
                           ? (isDark
-                                ? RpgColors.rpgGold.withValues(alpha: 0.6)
+                                ? RpgColors.warmGold.withValues(alpha: 0.6)
                                 : RpgColors.arcaneViolet)
                           : (isDark
                                 ? const Color(0xFF26304E)
@@ -270,7 +307,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     ),
                     decoration: BoxDecoration(
                       color: isDark
-                          ? RpgColors.rpgViolet.withValues(alpha: 0.2)
+                          ? RpgColors.mutedViolet.withValues(alpha: 0.25)
                           : RpgColors.rpgViolet.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(10),
                     ),
@@ -308,7 +345,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
                   color: isDark
-                      ? const Color(0xFF13182C).withValues(alpha: 0.7)
+                      ? const Color(0xFF13182C).withValues(alpha: 0.8)
                       : Colors.white,
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(
@@ -409,7 +446,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               );
             }),
 
-            // 6. Adventure Journal Hallmark / Codex Inscription (Visual grounding)
+            // 6. Adventure Journal Codex Inscription
             const SizedBox(height: 6),
             const RpgRunicDivider(height: 20),
             const SizedBox(height: 6),
@@ -426,7 +463,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       Icons.auto_stories_rounded,
                       size: 20,
                       color: isDark
-                          ? RpgColors.rpgGold.withValues(alpha: 0.45)
+                          ? RpgColors.warmGold.withValues(alpha: 0.45)
                           : RpgColors.arcaneViolet.withValues(alpha: 0.40),
                     ),
                     const SizedBox(height: 6),
@@ -453,7 +490,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                         fontWeight: FontWeight.w700,
                         letterSpacing: 1.2,
                         color: isDark
-                            ? RpgColors.rpgGold.withValues(alpha: 0.55)
+                            ? RpgColors.warmGold.withValues(alpha: 0.55)
                             : RpgColors.rpgIndigo.withValues(alpha: 0.50),
                       ),
                     ),
@@ -462,21 +499,15 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               ),
             ),
           ],
-          // Bottom padding so FAB doesn't obscure the last card
-          const SizedBox(height: 80),
+          // Bottom padding so floating CTA button does not obscure content
+          const SizedBox(height: 84),
         ],
       ),
-      floatingActionButton: FloatingActionButton.extended(
+      floatingActionButton: CozyButton.primary(
+        label: 'New Quest',
+        leadingIcon: Icons.add_rounded,
+        width: 145.0,
         onPressed: () => _showHabitDialog(context, ref),
-        icon: const Icon(Icons.add_rounded),
-        label: const Text(
-          'New Quest',
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
-        tooltip: 'Add Habit',
-        backgroundColor: RpgColors.rpgIndigo,
-        foregroundColor: Colors.white,
-        elevation: 4,
       ),
     );
   }

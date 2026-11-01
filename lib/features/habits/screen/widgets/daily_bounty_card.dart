@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
+import '../../../../core/theme/cozy_artwork.dart';
 import '../../../../core/theme/rpg_colors.dart';
 import '../../../../core/theme/rpg_spacing.dart';
 import '../../../../core/utils/date_utils.dart';
 import '../../models/habit.dart';
 
-/// Premium Daily Quest Board / Bounty Journal Docket.
+/// Premium Cozy Adventure RPG Daily Quest Board / Bounty Card.
 ///
-/// Features "Today's Quests" headline, quest completion ratio, animated progress bar,
-/// daily completion milestone, 7-day consistency metric, and clean responsive layout.
+/// Features AdventureChestIcon artwork, "Today's Quests" headline,
+/// quest completion ratio, animated compact progress bar, clean sheet celebrations,
+/// 7-day consistency metric, and responsive layout for all phone sizes.
 class DailyBountyCard extends StatelessWidget {
   final List<Habit> habits;
 
@@ -52,14 +54,14 @@ class DailyBountyCard extends StatelessWidget {
           colors: isDark
               ? (isCleanSheet
                     ? const [
-                        Color(0xFF1B2A4A),
-                        Color(0xFF13362B),
+                        Color(0xFF241C44),
+                        Color(0xFF17382B),
                         Color(0xFF0F261E),
                       ]
                     : const [
-                        Color(0xFF1B2042),
-                        Color(0xFF161B36),
-                        Color(0xFF101428),
+                        Color(0xFF2C1E52),
+                        Color(0xFF1E244D),
+                        Color(0xFF121733),
                       ])
               : (isCleanSheet
                     ? const [
@@ -75,20 +77,22 @@ class DailyBountyCard extends StatelessWidget {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
-        borderRadius: BorderRadius.circular(RpgSpacing.radiusCard),
+        borderRadius: BorderRadius.circular(16.0),
         border: Border.all(
           color: isCleanSheet
-              ? RpgColors.rpgGold.withValues(alpha: 0.80)
+              ? RpgColors.rpgGold.withValues(alpha: 0.85)
               : (isDark
-                    ? RpgColors.arcaneViolet.withValues(alpha: 0.38)
-                    : Colors.white.withValues(alpha: 0.28)),
+                    ? RpgColors.warmGold.withValues(alpha: 0.38)
+                    : Colors.white.withValues(alpha: 0.30)),
           width: isCleanSheet ? 1.5 : 1.0,
         ),
         boxShadow: [
           BoxShadow(
             color: isCleanSheet
                 ? RpgColors.rpgGold.withValues(alpha: isDark ? 0.28 : 0.20)
-                : const Color(0xFF4F46E5).withValues(alpha: 0.20),
+                : const Color(
+                    0xFF3E266E,
+                  ).withValues(alpha: isDark ? 0.35 : 0.15),
             blurRadius: 12,
             offset: const Offset(0, 3),
           ),
@@ -100,7 +104,7 @@ class DailyBountyCard extends StatelessWidget {
         ],
       ),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(RpgSpacing.radiusCard),
+        borderRadius: BorderRadius.circular(16.0),
         child: Stack(
           children: [
             // Subtle parchment / docket corner accents
@@ -112,7 +116,7 @@ class DailyBountyCard extends StatelessWidget {
                 painter: _BountyCornerPainter(
                   color: isCleanSheet
                       ? RpgColors.rpgGold
-                      : (isDark ? RpgColors.arcaneVioletLight : Colors.white70),
+                      : (isDark ? RpgColors.warmGold : Colors.white70),
                   isTop: true,
                   isLeft: true,
                 ),
@@ -126,9 +130,34 @@ class DailyBountyCard extends StatelessWidget {
                 painter: _BountyCornerPainter(
                   color: isCleanSheet
                       ? RpgColors.rpgGold
-                      : (isDark ? RpgColors.arcaneVioletLight : Colors.white70),
+                      : (isDark ? RpgColors.warmGold : Colors.white70),
                   isTop: true,
                   isLeft: false,
+                ),
+              ),
+            ),
+
+            // Glowing Adventure Chest artwork positioned on the right
+            Positioned(
+              right: 8,
+              top: 14,
+              child: IgnorePointer(
+                child: Container(
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color:
+                            (isCleanSheet
+                                    ? RpgColors.rpgGold
+                                    : RpgColors.warmGold)
+                                .withValues(alpha: isDark ? 0.25 : 0.15),
+                        blurRadius: 10,
+                        spreadRadius: 1,
+                      ),
+                    ],
+                  ),
+                  child: const AdventureChestIcon(size: 42),
                 ),
               ),
             ),
@@ -140,167 +169,194 @@ class DailyBountyCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  // Header Wrap: "Today's Quests" Title + DAILY BOUNTY Status Pill (Responsive on 320px)
-                  Wrap(
-                    alignment: WrapAlignment.spaceBetween,
-                    crossAxisAlignment: WrapCrossAlignment.center,
-                    spacing: 6,
-                    runSpacing: 4,
-                    children: [
-                      // Title Row with open grimoire icon
-                      Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(
-                            isCleanSheet
-                                ? Icons.military_tech_rounded
-                                : Icons.auto_stories_rounded,
-                            color: isCleanSheet
-                                ? RpgColors.rpgGold
-                                : Colors.white,
-                            size: 16,
-                          ),
-                          const SizedBox(width: 6),
-                          Text(
-                            "Today's Quests",
-                            style: TextStyle(
+                  // Header Wrap: "Today's Quests" Title + DAILY BOUNTY Status Pill
+                  Padding(
+                    padding: const EdgeInsets.only(right: 44.0),
+                    child: Wrap(
+                      alignment: WrapAlignment.spaceBetween,
+                      crossAxisAlignment: WrapCrossAlignment.center,
+                      spacing: 4,
+                      runSpacing: 4,
+                      children: [
+                        // Title Row with open grimoire icon
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              isCleanSheet
+                                  ? Icons.military_tech_rounded
+                                  : Icons.auto_stories_rounded,
                               color: isCleanSheet
                                   ? RpgColors.rpgGold
                                   : Colors.white,
-                              fontSize: 14,
-                              fontWeight: FontWeight.w800,
-                              letterSpacing: 0.3,
+                              size: 15,
                             ),
-                          ),
-                        ],
-                      ),
-
-                      // DAILY BOUNTY Milestone & Completed / Total Quests
-                      Wrap(
-                        spacing: 4,
-                        runSpacing: 2,
-                        crossAxisAlignment: WrapCrossAlignment.center,
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 6,
-                              vertical: 2,
-                            ),
-                            decoration: BoxDecoration(
-                              color: isCleanSheet
-                                  ? RpgColors.rpgGold.withValues(alpha: 0.22)
-                                  : Colors.white.withValues(alpha: 0.14),
-                              borderRadius: RpgSpacing.roundedPill,
-                              border: Border.all(
-                                color: isCleanSheet
-                                    ? RpgColors.rpgGold.withValues(alpha: 0.6)
-                                    : Colors.white.withValues(alpha: 0.25),
-                                width: 0.8,
-                              ),
-                            ),
-                            child: Text(
-                              'DAILY BOUNTY',
+                            const SizedBox(width: 5),
+                            Text(
+                              "Today's Quests",
                               style: TextStyle(
                                 color: isCleanSheet
-                                    ? RpgColors.rpgGoldBright
+                                    ? RpgColors.rpgGold
                                     : Colors.white,
-                                fontSize: 9.5,
+                                fontSize: 13.5,
                                 fontWeight: FontWeight.w800,
-                                letterSpacing: 0.5,
+                                letterSpacing: 0.2,
                               ),
                             ),
-                          ),
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 6,
-                              vertical: 2,
+                          ],
+                        ),
+
+                        // DAILY BOUNTY Milestone & Completed / Total Quests
+                        Wrap(
+                          spacing: 4,
+                          runSpacing: 2,
+                          crossAxisAlignment: WrapCrossAlignment.center,
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 5,
+                                vertical: 1.5,
+                              ),
+                              decoration: BoxDecoration(
+                                color: isCleanSheet
+                                    ? RpgColors.rpgGold.withValues(alpha: 0.22)
+                                    : Colors.white.withValues(alpha: 0.14),
+                                borderRadius: RpgSpacing.roundedPill,
+                                border: Border.all(
+                                  color: isCleanSheet
+                                      ? RpgColors.rpgGold.withValues(alpha: 0.6)
+                                      : Colors.white.withValues(alpha: 0.25),
+                                  width: 0.8,
+                                ),
+                              ),
+                              child: Text(
+                                'DAILY BOUNTY',
+                                style: TextStyle(
+                                  color: isCleanSheet
+                                      ? RpgColors.rpgGoldBright
+                                      : Colors.white,
+                                  fontSize: 9.0,
+                                  fontWeight: FontWeight.w800,
+                                  letterSpacing: 0.4,
+                                ),
+                              ),
                             ),
-                            decoration: BoxDecoration(
-                              color: isCleanSheet
-                                  ? RpgColors.rpgEmerald.withValues(alpha: 0.30)
-                                  : Colors.white.withValues(alpha: 0.16),
-                              borderRadius: RpgSpacing.roundedPill,
-                              border: Border.all(
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 5,
+                                vertical: 1.5,
+                              ),
+                              decoration: BoxDecoration(
                                 color: isCleanSheet
                                     ? RpgColors.rpgEmerald.withValues(
-                                        alpha: 0.6,
+                                        alpha: 0.30,
                                       )
-                                    : Colors.white.withValues(alpha: 0.2),
-                                width: 0.8,
+                                    : Colors.white.withValues(alpha: 0.16),
+                                borderRadius: RpgSpacing.roundedPill,
+                                border: Border.all(
+                                  color: isCleanSheet
+                                      ? RpgColors.rpgEmerald.withValues(
+                                          alpha: 0.6,
+                                        )
+                                      : Colors.white.withValues(alpha: 0.2),
+                                  width: 0.8,
+                                ),
+                              ),
+                              child: Text(
+                                totalQuests == 0
+                                    ? 'No Quests'
+                                    : '$completedToday / $totalQuests Done',
+                                style: TextStyle(
+                                  color: isCleanSheet
+                                      ? RpgColors.rpgGoldBright
+                                      : Colors.white,
+                                  fontSize: 9.5,
+                                  fontWeight: FontWeight.w800,
+                                ),
                               ),
                             ),
-                            child: Text(
-                              totalQuests == 0
-                                  ? 'No Quests'
-                                  : '$completedToday / $totalQuests Done',
-                              style: TextStyle(
-                                color: isCleanSheet
-                                    ? RpgColors.rpgGoldBright
-                                    : Colors.white,
-                                fontSize: 10,
-                                fontWeight: FontWeight.w800,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
-                  const SizedBox(height: 7),
+                  const SizedBox(height: 5),
+
+                  // Subtitle descriptor
+                  Padding(
+                    padding: const EdgeInsets.only(right: 44.0),
+                    child: Text(
+                      'Daily Bounty • Complete today\'s quests',
+                      style: TextStyle(
+                        color: isCleanSheet
+                            ? RpgColors.rpgGoldBright
+                            : RpgColors.warmGold,
+                        fontSize: 10.5,
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: 0.2,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  const SizedBox(height: 5),
 
                   // Daily Quest Progress Bar with channeled trough
-                  Container(
-                    height: 5,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(3),
-                      color: Colors.black.withValues(
-                        alpha: isDark ? 0.35 : 0.18,
+                  Padding(
+                    padding: const EdgeInsets.only(right: 44.0),
+                    child: Container(
+                      height: 4.5,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(3),
+                        color: Colors.black.withValues(
+                          alpha: isDark ? 0.35 : 0.18,
+                        ),
+                        border: Border.all(
+                          color: Colors.white.withValues(alpha: 0.12),
+                          width: 0.5,
+                        ),
                       ),
-                      border: Border.all(
-                        color: Colors.white.withValues(alpha: 0.12),
-                        width: 0.5,
-                      ),
-                    ),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(3),
-                      child: TweenAnimationBuilder<double>(
-                        tween: Tween<double>(begin: 0.0, end: todayProgress),
-                        duration: disableAnimations
-                            ? Duration.zero
-                            : const Duration(milliseconds: 500),
-                        curve: Curves.easeOutCubic,
-                        builder: (context, value, _) {
-                          return FractionallySizedBox(
-                            alignment: Alignment.centerLeft,
-                            widthFactor: value.clamp(0.0, 1.0),
-                            child: Container(
-                              decoration: BoxDecoration(
-                                gradient: isCleanSheet
-                                    ? RpgColors.emeraldGradient
-                                    : RpgColors.xpProgressGradient,
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: isCleanSheet
-                                        ? RpgColors.rpgEmerald
-                                        : RpgColors.rpgCyan,
-                                    blurRadius: 4,
-                                  ),
-                                ],
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(3),
+                        child: TweenAnimationBuilder<double>(
+                          tween: Tween<double>(begin: 0.0, end: todayProgress),
+                          duration: disableAnimations
+                              ? Duration.zero
+                              : const Duration(milliseconds: 500),
+                          curve: Curves.easeOutCubic,
+                          builder: (context, value, _) {
+                            return FractionallySizedBox(
+                              alignment: Alignment.centerLeft,
+                              widthFactor: value.clamp(0.0, 1.0),
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  gradient: isCleanSheet
+                                      ? RpgColors.emeraldGradient
+                                      : RpgColors.cozyGoldGradient,
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: isCleanSheet
+                                          ? RpgColors.rpgEmerald
+                                          : RpgColors.warmGold,
+                                      blurRadius: 4,
+                                    ),
+                                  ],
+                                ),
                               ),
-                            ),
-                          );
-                        },
+                            );
+                          },
+                        ),
                       ),
                     ),
                   ),
-                  const SizedBox(height: 7),
+                  const SizedBox(height: 6),
 
                   // Milestone & 7-Day Rate Wrap for 320px Responsiveness
                   Wrap(
                     alignment: WrapAlignment.spaceBetween,
                     crossAxisAlignment: WrapCrossAlignment.center,
-                    spacing: 6,
-                    runSpacing: 4,
+                    spacing: 4,
+                    runSpacing: 2,
                     children: [
                       // Milestone / Status
                       Row(
@@ -312,12 +368,12 @@ class DailyBountyCard extends StatelessWidget {
                                 : (isCleanSheet
                                       ? Icons.auto_awesome_rounded
                                       : Icons.flag_circle_rounded),
-                            size: 13,
+                            size: 12,
                             color: isCleanSheet
                                 ? RpgColors.rpgGoldBright
                                 : Colors.white70,
                           ),
-                          const SizedBox(width: 4),
+                          const SizedBox(width: 3),
                           Text(
                             totalQuests == 0
                                 ? 'No quests'
@@ -328,7 +384,7 @@ class DailyBountyCard extends StatelessWidget {
                               color: isCleanSheet
                                   ? RpgColors.rpgGoldBright
                                   : Colors.white.withValues(alpha: 0.88),
-                              fontSize: 10,
+                              fontSize: 9.5,
                               fontWeight: FontWeight.w600,
                             ),
                           ),
@@ -343,16 +399,16 @@ class DailyBountyCard extends StatelessWidget {
                             '7-Day Completion Rate',
                             style: TextStyle(
                               color: Colors.white.withValues(alpha: 0.80),
-                              fontSize: 10,
+                              fontSize: 9.5,
                               fontWeight: FontWeight.w500,
                             ),
                           ),
-                          const SizedBox(width: 4),
+                          const SizedBox(width: 3),
                           Text(
                             '$weeklyPercentage%',
                             style: const TextStyle(
                               color: Colors.white,
-                              fontSize: 10.5,
+                              fontSize: 10,
                               fontWeight: FontWeight.w800,
                             ),
                           ),

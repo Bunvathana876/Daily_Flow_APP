@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../theme/cozy_artwork.dart';
 import '../theme/rpg_colors.dart';
 
 /// Cozy Background Atmosphere Scaffold that supports fantasy landscape backdrops,
@@ -11,6 +12,7 @@ class CozyBackgroundScaffold extends StatelessWidget {
   final PreferredSizeWidget? appBar;
   final Widget? bottomNavigationBar;
   final Widget? floatingActionButton;
+  final FloatingActionButtonLocation? floatingActionButtonLocation;
   final String? backgroundImageAsset;
   final ImageProvider? backgroundImageProvider;
   final double backgroundImageHeight;
@@ -26,6 +28,7 @@ class CozyBackgroundScaffold extends StatelessWidget {
     this.appBar,
     this.bottomNavigationBar,
     this.floatingActionButton,
+    this.floatingActionButtonLocation,
     this.backgroundImageAsset,
     this.backgroundImageProvider,
     this.backgroundImageHeight = 280.0,
@@ -36,12 +39,46 @@ class CozyBackgroundScaffold extends StatelessWidget {
     this.atmosphereGradient,
   });
 
+  /// Dedicated constructor configured for the Fantasy Village backdrop.
+  const CozyBackgroundScaffold.village({
+    super.key,
+    required this.body,
+    this.appBar,
+    this.bottomNavigationBar,
+    this.floatingActionButton,
+    this.floatingActionButtonLocation,
+    this.backgroundImageHeight = 280.0,
+    this.isFullScreenImage = false,
+    this.imageOpacity = 1.0,
+    this.showLanternGlow = true,
+    this.lanternGlowAlignment = const Alignment(0.75, -0.75),
+    this.atmosphereGradient,
+  }) : backgroundImageAsset = CozyArtwork.bgFantasyVillage,
+       backgroundImageProvider = null;
+
+  /// Dedicated constructor configured for the Arcane Focus Chamber backdrop.
+  const CozyBackgroundScaffold.focusChamber({
+    super.key,
+    required this.body,
+    this.appBar,
+    this.bottomNavigationBar,
+    this.floatingActionButton,
+    this.floatingActionButtonLocation,
+    this.backgroundImageHeight = 280.0,
+    this.isFullScreenImage = true,
+    this.imageOpacity = 0.85,
+    this.showLanternGlow = true,
+    this.lanternGlowAlignment = const Alignment(-0.6, -0.5),
+    this.atmosphereGradient,
+  }) : backgroundImageAsset = CozyArtwork.bgFocusChamber,
+       backgroundImageProvider = null;
+
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     Widget? buildBackgroundImage() {
-      if (backgroundImageAsset != null) {
+      if (backgroundImageAsset != null && backgroundImageAsset!.isNotEmpty) {
         return Image.asset(
           backgroundImageAsset!,
           fit: BoxFit.cover,
@@ -64,6 +101,7 @@ class CozyBackgroundScaffold extends StatelessWidget {
       appBar: appBar,
       bottomNavigationBar: bottomNavigationBar,
       floatingActionButton: floatingActionButton,
+      floatingActionButtonLocation: floatingActionButtonLocation,
       body: Stack(
         fit: StackFit.expand,
         children: [

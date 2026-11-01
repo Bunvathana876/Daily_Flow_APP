@@ -258,7 +258,7 @@ void main() {
           const MaterialApp(
             home: Scaffold(
               body: HeroAvatarFrame(
-                imageAsset: CozyArtwork.heroPortraitDefault,
+                imageAsset: 'assets/images/missing_hero_avatar.png',
                 fallbackIcon: Icons.shield_rounded,
               ),
             ),
@@ -266,9 +266,24 @@ void main() {
         );
         await tester.pump();
 
-        // Should render without throwing an unhandled exception
+        // Should render fallback icon without throwing an unhandled exception
         expect(find.byType(HeroAvatarFrame), findsOneWidget);
         expect(find.byIcon(Icons.shield_rounded), findsOneWidget);
+      },
+    );
+
+    testWidgets(
+      'HeroAvatarFrame renders hero portrait image when asset is present',
+      (tester) async {
+        await tester.pumpWidget(
+          const MaterialApp(
+            home: Scaffold(body: HeroAvatarFrame.heroDefault()),
+          ),
+        );
+        await tester.pump();
+
+        expect(find.byType(HeroAvatarFrame), findsOneWidget);
+        expect(find.byType(Image), findsOneWidget);
       },
     );
 
@@ -278,7 +293,7 @@ void main() {
         await tester.pumpWidget(
           const MaterialApp(
             home: CozyBackgroundScaffold(
-              backgroundImageAsset: CozyArtwork.bgFantasyVillage,
+              backgroundImageAsset: 'assets/images/missing_bg_art.png',
               isFullScreenImage: true,
               body: Text('Village Realm'),
             ),
@@ -290,25 +305,66 @@ void main() {
       },
     );
 
-    testWidgets('CozyArtwork helpers render safe vector fallbacks', (
+    testWidgets('CozyBackgroundScaffold renders fantasy village backdrop', (
       tester,
     ) async {
       await tester.pumpWidget(
         MaterialApp(
-          home: Scaffold(
-            body: Column(
-              children: [
-                CozyArtwork.questJournal(size: 32),
-                CozyArtwork.adventureChest(size: 44),
-              ],
-            ),
+          theme: ThemeData.dark(),
+          home: const CozyBackgroundScaffold.village(
+            body: Text('Village Sanctuary'),
           ),
         ),
       );
-      await tester.pump();
 
-      expect(find.byIcon(Icons.auto_stories_rounded), findsOneWidget);
-      expect(find.byIcon(Icons.inventory_2_rounded), findsOneWidget);
+      expect(find.byType(CozyBackgroundScaffold), findsOneWidget);
+      expect(find.byType(Image), findsOneWidget);
+      expect(find.text('Village Sanctuary'), findsOneWidget);
     });
+
+    testWidgets(
+      'CozyArtwork helpers render safe vector fallbacks when missing or forced',
+      (tester) async {
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Scaffold(
+              body: Column(
+                children: [
+                  CozyArtwork.questJournal(size: 32, forceFallback: true),
+                  CozyArtwork.adventureChest(size: 44, forceFallback: true),
+                ],
+              ),
+            ),
+          ),
+        );
+        await tester.pump();
+
+        expect(find.byIcon(Icons.auto_stories_rounded), findsOneWidget);
+        expect(find.byIcon(Icons.inventory_2_rounded), findsOneWidget);
+      },
+    );
+
+    testWidgets(
+      'CozyArtwork helpers and reusable widgets render image assets',
+      (tester) async {
+        await tester.pumpWidget(
+          const MaterialApp(
+            home: Scaffold(
+              body: Column(
+                children: [
+                  QuestJournalIcon(size: 32),
+                  AdventureChestIcon(size: 44),
+                ],
+              ),
+            ),
+          ),
+        );
+        await tester.pump();
+
+        expect(find.byType(QuestJournalIcon), findsOneWidget);
+        expect(find.byType(AdventureChestIcon), findsOneWidget);
+        expect(find.byType(Image), findsNWidgets(2));
+      },
+    );
   });
 }
