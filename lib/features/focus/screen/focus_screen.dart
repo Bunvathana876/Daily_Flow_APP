@@ -312,22 +312,20 @@ class _FocusScreenState extends ConsumerState<FocusScreen>
                   vertical: 10,
                 ),
                 decoration: BoxDecoration(
-                  color: isDark
-                      ? RpgColors.softIndigo.withValues(alpha: 0.90)
-                      : Colors.white.withValues(alpha: 0.92),
+                  color: isDark ? const Color(0xFF141A33) : Colors.white,
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(
                     color: isDark
-                        ? RpgColors.cozyBorderDark
-                        : RpgColors.rpgBorderLight,
+                        ? RpgColors.warmGold.withValues(alpha: 0.35)
+                        : RpgColors.warmGold.withValues(alpha: 0.45),
                     width: 1.0,
                   ),
                   boxShadow: [
                     BoxShadow(
                       color: Colors.black.withValues(
-                        alpha: isDark ? 0.30 : 0.05,
+                        alpha: isDark ? 0.35 : 0.06,
                       ),
-                      blurRadius: 10,
+                      blurRadius: 12,
                       offset: const Offset(0, 3),
                     ),
                   ],
@@ -348,11 +346,11 @@ class _FocusScreenState extends ConsumerState<FocusScreen>
                             'LINKED QUEST',
                             style: TextStyle(
                               fontSize: 10,
-                              fontWeight: FontWeight.w700,
-                              letterSpacing: 0.6,
+                              fontWeight: FontWeight.w800,
+                              letterSpacing: 0.8,
                               color: isDark
                                   ? RpgColors.warmGold
-                                  : RpgColors.arcaneViolet,
+                                  : const Color(0xFFB45309),
                             ),
                           ),
                           const SizedBox(height: 1),
@@ -372,7 +370,7 @@ class _FocusScreenState extends ConsumerState<FocusScreen>
                                 size: 18,
                                 color: isDark
                                     ? RpgColors.warmGold
-                                    : RpgColors.arcaneViolet,
+                                    : const Color(0xFFB45309),
                               ),
                               selectedItemBuilder: (context) {
                                 return habits.map((h) {
@@ -383,7 +381,7 @@ class _FocusScreenState extends ConsumerState<FocusScreen>
                                       overflow: TextOverflow.ellipsis,
                                       style: TextStyle(
                                         fontWeight: FontWeight.w800,
-                                        fontSize: 13.5,
+                                        fontSize: 14.0,
                                         color: isDark
                                             ? Colors.white
                                             : const Color(0xFF1E2447),
@@ -453,8 +451,8 @@ class _FocusScreenState extends ConsumerState<FocusScreen>
                               fontSize: 11,
                               fontWeight: FontWeight.w500,
                               color: isDark
-                                  ? const Color(0xFF94A3B8)
-                                  : Colors.grey.shade600,
+                                  ? const Color(0xFFCBD5E1)
+                                  : const Color(0xFF475569),
                             ),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
@@ -475,16 +473,20 @@ class _FocusScreenState extends ConsumerState<FocusScreen>
                         decoration: BoxDecoration(
                           color: selectedHabit.isCompletedToday
                               ? RpgColors.questEmerald.withValues(
-                                  alpha: isDark ? 0.20 : 0.12,
+                                  alpha: isDark ? 0.25 : 0.15,
                                 )
                               : (isDark
-                                    ? Colors.white.withValues(alpha: 0.08)
+                                    ? const Color(0xFF1E2648)
                                     : Colors.grey.shade200),
                           borderRadius: BorderRadius.circular(10),
                           border: Border.all(
                             color: selectedHabit.isCompletedToday
-                                ? RpgColors.questEmerald.withValues(alpha: 0.5)
-                                : Colors.transparent,
+                                ? RpgColors.questEmerald.withValues(alpha: 0.6)
+                                : (isDark
+                                      ? RpgColors.warmGold.withValues(
+                                          alpha: 0.35,
+                                        )
+                                      : Colors.grey.shade400),
                             width: 0.8,
                           ),
                         ),
@@ -500,8 +502,8 @@ class _FocusScreenState extends ConsumerState<FocusScreen>
                                   fontSize: 11,
                                   fontWeight: FontWeight.w700,
                                   color: isDark
-                                      ? Colors.grey.shade400
-                                      : Colors.grey.shade700,
+                                      ? RpgColors.warmGold
+                                      : const Color(0xFF1E2447),
                                 ),
                               ),
                       ),
@@ -518,13 +520,17 @@ class _FocusScreenState extends ConsumerState<FocusScreen>
                 ),
                 decoration: BoxDecoration(
                   color: isDark
-                      ? RpgColors.softIndigo.withValues(alpha: 0.85)
-                      : Colors.white.withValues(alpha: 0.90),
+                      ? const Color(0xFF141A33).withValues(alpha: 0.92)
+                      : Colors.white.withValues(alpha: 0.92),
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(
                     color: isDark
-                        ? RpgColors.cozyBorderDark
-                        : RpgColors.rpgBorderLight,
+                        ? (timerState.mode == FocusMode.shortBreak
+                              ? RpgColors.questEmerald.withValues(alpha: 0.35)
+                              : RpgColors.rpgCyan.withValues(alpha: 0.35))
+                        : (timerState.mode == FocusMode.shortBreak
+                              ? RpgColors.questEmerald.withValues(alpha: 0.45)
+                              : RpgColors.rpgCyan.withValues(alpha: 0.45)),
                     width: 1.0,
                   ),
                   boxShadow: [
@@ -571,7 +577,7 @@ class _FocusScreenState extends ConsumerState<FocusScreen>
                                 ? 'Short Rest Sanctuary'
                                 : 'Deep Rest Sanctuary',
                             style: TextStyle(
-                              fontSize: 13,
+                              fontSize: 13.5,
                               fontWeight: FontWeight.w800,
                               color: isDark
                                   ? Colors.white
@@ -585,8 +591,8 @@ class _FocusScreenState extends ConsumerState<FocusScreen>
                               fontSize: 11,
                               fontWeight: FontWeight.w500,
                               color: isDark
-                                  ? const Color(0xFF94A3B8)
-                                  : Colors.grey.shade600,
+                                  ? const Color(0xFFCBD5E1)
+                                  : const Color(0xFF475569),
                             ),
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
@@ -660,13 +666,17 @@ class _FocusScreenState extends ConsumerState<FocusScreen>
 
                 const SizedBox(width: 12),
 
-                // Primary Action Button: Start Focus vs. Pause
+                // Primary Action Button: Start Focus / Start Rest vs. Pause
                 Expanded(
                   child: Semantics(
                     button: true,
                     label: timerState.isRunning
-                        ? 'Pause Focus Timer'
-                        : 'Start Focus Timer',
+                        ? (timerState.mode == FocusMode.focus
+                              ? 'Pause Focus Timer'
+                              : 'Pause Rest Timer')
+                        : (timerState.mode == FocusMode.focus
+                              ? 'Start Focus Timer'
+                              : 'Start Rest Timer'),
                     child: Container(
                       height: 48,
                       decoration: BoxDecoration(
@@ -725,7 +735,9 @@ class _FocusScreenState extends ConsumerState<FocusScreen>
                                 Text(
                                   timerState.isRunning
                                       ? 'Pause'
-                                      : 'Start Focus',
+                                      : (timerState.mode == FocusMode.focus
+                                            ? 'Start Focus'
+                                            : 'Start Rest'),
                                   style: const TextStyle(
                                     fontSize: 15,
                                     fontWeight: FontWeight.w800,
