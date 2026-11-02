@@ -9,6 +9,7 @@ import 'package:daily_flow/features/habits/models/habit.dart';
 import 'package:daily_flow/features/profile/screen/profile_screen.dart';
 import 'package:daily_flow/features/profile/widgets/achievement_details_dialog.dart';
 import 'package:daily_flow/features/profile/widgets/hero_customization_dialog.dart';
+import 'package:daily_flow/features/settings/screen/settings_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -236,6 +237,7 @@ void main() {
   Widget createProfileApp({
     Size screenSize = const Size(800, 1000),
     bool disableAnimations = false,
+    double textScaleFactor = 1.0,
   }) {
     return ProviderScope(
       overrides: [
@@ -247,6 +249,7 @@ void main() {
           data: MediaQueryData(
             size: screenSize,
             disableAnimations: disableAnimations,
+            textScaler: TextScaler.linear(textScaleFactor),
           ),
           child: const ProfileScreen(),
         ),
@@ -342,7 +345,7 @@ void main() {
 
       // Unlocked badge 'Flame Keeper'
       expect(find.text('Flame Keeper'), findsOneWidget);
-      expect(find.text('+100 XP'), findsOneWidget);
+      expect(find.text('+100 XP'), findsWidgets);
       expect(find.text('RARE'), findsWidgets);
 
       // Locked badge 'Iron Will'
@@ -408,5 +411,142 @@ void main() {
       expect(find.text('Profile'), findsOneWidget);
       expect(tester.takeException(), isNull);
     });
+
+    testWidgets(
+      '8. Achievement path filter chips filter achievements dynamically',
+      (tester) async {
+        tester.view.physicalSize = const Size(800, 1200);
+        tester.view.devicePixelRatio = 1.0;
+        addTearDown(() {
+          tester.view.resetPhysicalSize();
+          tester.view.resetDevicePixelRatio();
+        });
+
+        await tester.pumpWidget(createProfileApp());
+        await tester.pumpAndSettle();
+
+        // Initially 'All' shows Flame Keeper (streaks) and Iron Will (streaks)
+        expect(find.text('Flame Keeper'), findsOneWidget);
+        expect(find.text('Iron Will'), findsOneWidget);
+
+        // Tap Scholar's Path (focus)
+        await tester.tap(find.text("Scholar's Path"));
+        await tester.pumpAndSettle();
+
+        // Streaks achievements should be filtered out
+        expect(find.text('Flame Keeper'), findsNothing);
+        expect(find.text('Iron Will'), findsNothing);
+
+        // Return to All
+        await tester.tap(find.text('All'));
+        await tester.pumpAndSettle();
+        expect(find.text('Flame Keeper'), findsOneWidget);
+      },
+    );
+
+    testWidgets('9. Settings card navigates to SettingsScreen', (tester) async {
+      tester.view.physicalSize = const Size(800, 1200);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(() {
+        tester.view.resetPhysicalSize();
+        tester.view.resetDevicePixelRatio();
+      });
+
+      await tester.pumpWidget(createProfileApp());
+      await tester.pumpAndSettle();
+
+      // Tap settings card subtitle or title
+      await tester.tap(find.text('Preferences, reminders & haptics'));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(SettingsScreen), findsOneWidget);
+    });
+
+    testWidgets(
+      '10. Large text scaling (2.0x text scaling) renders cleanly without errors',
+      (tester) async {
+        tester.view.physicalSize = const Size(800, 1200);
+        tester.view.devicePixelRatio = 1.0;
+        addTearDown(() {
+          tester.view.resetPhysicalSize();
+          tester.view.resetDevicePixelRatio();
+        });
+
+        await tester.pumpWidget(createProfileApp(textScaleFactor: 2.0));
+        await tester.pumpAndSettle();
+
+        expect(tester.takeException(), isNull);
+        expect(find.text('Profile'), findsOneWidget);
+        expect(find.text('Solar Knight'), findsOneWidget);
+      },
+    );
+
+    testWidgets(
+      '11. Trophy grid renders responsively in 3 columns on standard screens and 2 on narrow',
+      (tester) async {
+        // Standard phone width (390)
+        tester.view.physicalSize = const Size(390, 844);
+        tester.view.devicePixelRatio = 1.0;
+        addTearDown(() {
+          tester.view.resetPhysicalSize();
+          tester.view.resetDevicePixelRatio();
+        });
+
+        await tester.pumpWidget(
+          createProfileApp(screenSize: const Size(390, 844)),
+        );
+        await tester.pumpAndSettle();
+
+        final gridFinder = find.byType(GridView);
+        expect(gridFinder, findsOneWidget);
+        final gridView = tester.widget<GridView>(gridFinder);
+        final delegate =
+            gridView.gridDelegate as SliverGridDelegateWithFixedCrossAxisCount;
+        expect(delegate.crossAxisCount, 3);
+
+        // Narrow phone width (320)
+        tester.view.physicalSize = const Size(320, 640);
+        await tester.pumpWidget(
+          createProfileApp(screenSize: const Size(320, 640)),
+        );
+        await tester.pumpAndSettle();
+
+        final narrowGridView = tester.widget<GridView>(gridFinder);
+        final narrowDelegate =
+            narrowGridView.gridDelegate
+                as SliverGridDelegateWithFixedCrossAxisCount;
+        expect(narrowDelegate.crossAxisCount, 2);
+      },
+    );
+
+    testWidgets(
+      '12. Category Breakdown displays category icons, names, and habit counts',
+      (tester) async {
+        tester.view.physicalSize = const Size(800, 1200);
+        tester.view.devicePixelRatio = 1.0;
+        addTearDown(() {
+          tester.view.resetPhysicalSize();
+          tester.view.resetDevicePixelRatio();
+        });
+
+        await tester.pumpWidget(createProfileApp());
+        await tester.pumpAndSettle();
+
+        // Scroll to Category Breakdown section
+        await tester.scrollUntilVisible(
+          find.text('Category Breakdown'),
+          200,
+          scrollable: find.byType(Scrollable).first,
+        );
+        await tester.pumpAndSettle();
+
+        expect(find.text('Category Breakdown'), findsOneWidget);
+        expect(find.text('General'), findsOneWidget);
+        expect(find.text('Health'), findsOneWidget);
+        expect(find.text('Study'), findsOneWidget);
+        expect(find.text('Coding'), findsOneWidget);
+        expect(find.text('Fitness'), findsOneWidget);
+      },
+    );
   });
 }

@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/constants/app_constants.dart';
 import '../../../core/services/haptics_service.dart';
 import '../../../core/theme/rpg_colors.dart';
-import '../../../core/theme/theme_provider.dart';
 import '../../../core/widgets/cozy_background.dart';
 import '../../../core/widgets/cozy_button.dart';
 import '../../../core/widgets/rpg_celebration_banner.dart';
@@ -198,16 +197,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         ),
         backgroundColor: Colors.transparent,
         elevation: 0,
-        actions: [
-          IconButton(
-            icon: Icon(
-              isDark ? Icons.light_mode_rounded : Icons.dark_mode_rounded,
-            ),
-            tooltip: 'Toggle Theme',
-            onPressed: () => ref.read(themeModeProvider.notifier).toggleTheme(),
-          ),
-          const SizedBox(width: 8),
-        ],
       ),
       body: ListView(
         padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 6.0),

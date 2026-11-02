@@ -25,6 +25,22 @@ class _NavDestinationItem {
   });
 }
 
+/// Notifier controlling the active bottom navigation tab in MainShell.
+class MainShellTabNotifier extends Notifier<int> {
+  @override
+  int build() => 0;
+
+  void selectTab(int index) {
+    if (index >= 0 && index < 4) {
+      state = index;
+    }
+  }
+}
+
+final mainShellTabProvider = NotifierProvider<MainShellTabNotifier, int>(
+  MainShellTabNotifier.new,
+);
+
 /// Main application shell with an iOS-inspired Floating Liquid Glass Navigation Dock.
 ///
 /// Features:
@@ -42,8 +58,6 @@ class MainShell extends ConsumerStatefulWidget {
 }
 
 class _MainShellState extends ConsumerState<MainShell> {
-  int _selectedIndex = 0;
-
   final List<Widget> _screens = const [
     HomeScreen(),
     StatsScreen(),
@@ -79,11 +93,10 @@ class _MainShellState extends ConsumerState<MainShell> {
   ];
 
   void _onTabSelected(int index) {
-    if (_selectedIndex != index) {
+    final current = ref.read(mainShellTabProvider);
+    if (current != index) {
       ref.read(hapticsServiceProvider).selectionClick();
-      setState(() {
-        _selectedIndex = index;
-      });
+      ref.read(mainShellTabProvider.notifier).selectTab(index);
     }
   }
 
@@ -107,6 +120,7 @@ class _MainShellState extends ConsumerState<MainShell> {
     final screenWidth = mediaQuery.size.width;
     final keyboardVisible = mediaQuery.viewInsets.bottom > 0;
     final reduceMotion = mediaQuery.disableAnimations;
+    final selectedIndex = ref.watch(mainShellTabProvider);
 
     // Show optional separate FAB only when layout width supports it safely (>= 370px),
     // and only on secondary tabs (Insights & Profile).
@@ -115,13 +129,13 @@ class _MainShellState extends ConsumerState<MainShell> {
     final showQuickAddFab =
         !keyboardVisible &&
         screenWidth >= 370.0 &&
-        (_selectedIndex == 1 || _selectedIndex == 3);
+        (selectedIndex == 1 || selectedIndex == 3);
 
     return Scaffold(
       backgroundColor: isDark
           ? RpgColors.midnightNavy
           : theme.scaffoldBackgroundColor,
-      body: IndexedStack(index: _selectedIndex, children: _screens),
+      body: IndexedStack(index: selectedIndex, children: _screens),
       bottomNavigationBar: keyboardVisible
           ? const SizedBox.shrink()
           : SafeArea(
@@ -143,7 +157,7 @@ class _MainShellState extends ConsumerState<MainShell> {
                       child: ConstrainedBox(
                         constraints: const BoxConstraints(maxWidth: 440),
                         child: _LiquidGlassDock(
-                          selectedIndex: _selectedIndex,
+                          selectedIndex: selectedIndex,
                           destinations: _destinations,
                           onDestinationSelected: _onTabSelected,
                           isDark: isDark,

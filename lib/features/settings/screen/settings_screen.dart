@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/services/haptics_service.dart';
-import '../../../core/theme/theme_provider.dart';
+import '../../../core/services/notification_service.dart';
+import '../../../core/theme/rpg_colors.dart';
 import '../controllers/settings_controller.dart';
 
 class SettingsScreen extends ConsumerStatefulWidget {
@@ -12,15 +13,17 @@ class SettingsScreen extends ConsumerStatefulWidget {
 }
 
 class _SettingsScreenState extends ConsumerState<SettingsScreen> {
-  TimeOfDay _reminderTime = const TimeOfDay(hour: 8, minute: 0);
-
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
-    final currentThemeMode = ref.watch(themeModeProvider);
     final settings = ref.watch(settingsControllerProvider);
     final hapticsEnabled = settings.hapticsEnabled;
+    final reminderEnabled = settings.reminderEnabled;
+    final reminderTime = TimeOfDay(
+      hour: settings.reminderHour,
+      minute: settings.reminderMinute,
+    );
 
     return Scaffold(
       appBar: AppBar(
@@ -32,111 +35,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       body: ListView(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         children: [
-          // Appearance & Dark Mode Section
-          _buildSectionHeader(context, 'Appearance', Icons.palette_outlined),
-          const SizedBox(height: 8),
-          Card(
-            elevation: 0,
-            color: isDark ? const Color(0xFF1E293B) : Colors.white,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
-              side: BorderSide(
-                color: isDark
-                    ? Colors.white.withValues(alpha: 0.1)
-                    : Colors.black.withValues(alpha: 0.05),
-              ),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Icon(
-                        currentThemeMode == ThemeMode.dark
-                            ? Icons.dark_mode
-                            : currentThemeMode == ThemeMode.light
-                            ? Icons.light_mode
-                            : Icons.brightness_auto,
-                        size: 20,
-                        color: theme.colorScheme.primary,
-                      ),
-                      const SizedBox(width: 8),
-                      const Text(
-                        'Theme Mode',
-                        style: TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  SizedBox(
-                    width: double.infinity,
-                    child: SegmentedButton<ThemeMode>(
-                      segments: const [
-                        ButtonSegment<ThemeMode>(
-                          value: ThemeMode.light,
-                          label: Text('Light'),
-                          icon: Icon(Icons.light_mode_outlined),
-                        ),
-                        ButtonSegment<ThemeMode>(
-                          value: ThemeMode.dark,
-                          label: Text('Dark'),
-                          icon: Icon(Icons.dark_mode_outlined),
-                        ),
-                        ButtonSegment<ThemeMode>(
-                          value: ThemeMode.system,
-                          label: Text('System'),
-                          icon: Icon(Icons.brightness_auto_outlined),
-                        ),
-                      ],
-                      selected: {currentThemeMode},
-                      onSelectionChanged: (newSelection) {
-                        ref.read(hapticsServiceProvider).lightImpact();
-                        ref
-                            .read(settingsControllerProvider.notifier)
-                            .setThemeMode(newSelection.first);
-                      },
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  SwitchListTile(
-                    contentPadding: EdgeInsets.zero,
-                    title: const Text(
-                      'Dark Mode Quick Toggle',
-                      style: TextStyle(fontSize: 14),
-                    ),
-                    subtitle: Text(
-                      currentThemeMode == ThemeMode.dark
-                          ? 'Dark mode is currently active'
-                          : 'Light mode is currently active',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: isDark
-                            ? Colors.grey.shade400
-                            : Colors.grey.shade600,
-                      ),
-                    ),
-                    value: currentThemeMode == ThemeMode.dark,
-                    onChanged: (bool value) {
-                      ref.read(hapticsServiceProvider).lightImpact();
-                      ref
-                          .read(settingsControllerProvider.notifier)
-                          .setThemeMode(
-                            value ? ThemeMode.dark : ThemeMode.light,
-                          );
-                    },
-                  ),
-                ],
-              ),
-            ),
-          ),
-
-          const SizedBox(height: 24),
-
           // Preferences Section
           _buildSectionHeader(context, 'Preferences', Icons.tune_rounded),
           const SizedBox(height: 8),
@@ -174,36 +72,163 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   },
                 ),
                 const Divider(height: 1, indent: 56),
+
+                // Daily Reminder Toggle
+                SwitchListTile(
+                  secondary: Icon(
+                    reminderEnabled
+                        ? Icons.notifications_active_rounded
+                        : Icons.notifications_outlined,
+                    color: reminderEnabled
+                        ? RpgColors.warmGold
+                        : theme.colorScheme.primary,
+                  ),
+                  title: const Text('Daily Reminders'),
+                  subtitle: Text(
+                    _buildReminderSubtitle(settings),
+                    style: TextStyle(
+                      fontSize: 12,
+                      color:
+                          settings.permissionStatus ==
+                                  NotificationPermissionStatus.denied ||
+                              settings.permissionStatus ==
+                                  NotificationPermissionStatus.permanentlyDenied
+                          ? Colors.amber.shade300
+                          : (isDark
+                                ? Colors.grey.shade400
+                                : Colors.grey.shade600),
+                    ),
+                  ),
+                  value: reminderEnabled,
+                  onChanged: (val) async {
+                    ref.read(hapticsServiceProvider).lightImpact();
+                    final success = await ref
+                        .read(settingsControllerProvider.notifier)
+                        .setReminderEnabled(val);
+                    if (!context.mounted) return;
+                    if (!success && settings.reminderErrorMessage != null) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(settings.reminderErrorMessage!),
+                          backgroundColor: Colors.amber.shade900,
+                          behavior: SnackBarBehavior.floating,
+                        ),
+                      );
+                    }
+                  },
+                ),
+                const Divider(height: 1, indent: 56),
+
+                // Daily Reminder Time Picker
                 ListTile(
                   leading: Icon(
                     Icons.alarm_rounded,
-                    color: theme.colorScheme.primary,
+                    color: reminderEnabled
+                        ? RpgColors.warmGold
+                        : theme.colorScheme.primary.withValues(alpha: 0.7),
                   ),
                   title: const Text('Daily Reminder Time'),
                   subtitle: Text(
-                    _reminderTime.format(context),
+                    reminderEnabled
+                        ? '${reminderTime.format(context)} (Active)'
+                        : '${reminderTime.format(context)} (When reminders enabled)',
                     style: const TextStyle(fontSize: 12),
                   ),
                   trailing: const Icon(Icons.chevron_right_rounded),
                   onTap: () async {
                     final picked = await showTimePicker(
                       context: context,
-                      initialTime: _reminderTime,
+                      initialTime: reminderTime,
                     );
                     if (picked != null) {
-                      setState(() {
-                        _reminderTime = picked;
-                      });
+                      ref.read(hapticsServiceProvider).selectionClick();
+                      final success = await ref
+                          .read(settingsControllerProvider.notifier)
+                          .setReminderTime(picked);
+                      if (!context.mounted) return;
+                      if (!success) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text(
+                              'Could not reschedule notification for the selected time.',
+                            ),
+                            behavior: SnackBarBehavior.floating,
+                          ),
+                        );
+                      }
                     }
                   },
                 ),
               ],
             ),
           ),
+
+          // In-line Warning/Error Banner if reminder configuration had issues
+          if (settings.reminderErrorMessage != null) ...[
+            const SizedBox(height: 10),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+              decoration: BoxDecoration(
+                color: Colors.amber.shade900.withValues(alpha: 0.20),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: Colors.amber.shade600.withValues(alpha: 0.40),
+                  width: 1.0,
+                ),
+              ),
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.warning_amber_rounded,
+                    color: Colors.amber.shade300,
+                    size: 20,
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Text(
+                      settings.reminderErrorMessage!,
+                      style: const TextStyle(
+                        fontSize: 12,
+                        color: Color(0xFFFBF8EE),
+                        height: 1.3,
+                      ),
+                    ),
+                  ),
+                  IconButton(
+                    icon: const Icon(
+                      Icons.close_rounded,
+                      size: 18,
+                      color: Color(0xFF94A3B8),
+                    ),
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(),
+                    onPressed: () {
+                      ref
+                          .read(settingsControllerProvider.notifier)
+                          .clearReminderErrorMessage();
+                    },
+                  ),
+                ],
+              ),
+            ),
+          ],
+
           const SizedBox(height: 32),
         ],
       ),
     );
+  }
+
+  String _buildReminderSubtitle(SettingsState settings) {
+    if (settings.reminderEnabled) {
+      return 'Active — daily quests reminder scheduled';
+    }
+    if (settings.permissionStatus == NotificationPermissionStatus.denied ||
+        settings.permissionStatus ==
+            NotificationPermissionStatus.permanentlyDenied) {
+      return 'Permission required — enable notifications in settings';
+    }
+    return 'Off — turn on to stay consistent with your quests';
   }
 
   Widget _buildSectionHeader(

@@ -96,7 +96,7 @@ void main() {
     },
   );
 
-  testWidgets('Theme toggle toggles dark and light mode', (
+  testWidgets('DailyFlowApp is configured with Dark Mode only', (
     WidgetTester tester,
   ) async {
     await tester.pumpWidget(
@@ -109,13 +109,9 @@ void main() {
     );
 
     final materialApp = tester.widget<MaterialApp>(find.byType(MaterialApp));
-    expect(materialApp.themeMode, ThemeMode.light);
-
-    await tester.tap(find.byTooltip('Toggle Theme'));
-    await tester.pumpAndSettle();
-
-    final updatedApp = tester.widget<MaterialApp>(find.byType(MaterialApp));
-    expect(updatedApp.themeMode, ThemeMode.dark);
+    expect(materialApp.themeMode, ThemeMode.dark);
+    expect(materialApp.theme?.brightness, Brightness.dark);
+    expect(materialApp.darkTheme?.brightness, Brightness.dark);
   });
 
   testWidgets('MainShell navigates to Insights tab and renders analytics', (
@@ -271,9 +267,9 @@ void main() {
         ),
       );
 
-      // Initial theme is light
+      // Initial theme is dark mode
       final initialApp = tester.widget<MaterialApp>(find.byType(MaterialApp));
-      expect(initialApp.themeMode, ThemeMode.light);
+      expect(initialApp.themeMode, ThemeMode.dark);
 
       // Tap Profile tab
       await tester.tap(find.text('Profile'));
@@ -308,33 +304,21 @@ void main() {
 
       // Verify SettingsScreen is pushed
       expect(find.byType(SettingsScreen), findsOneWidget);
-      expect(find.text('Appearance'), findsOneWidget);
-      expect(find.text('Theme Mode'), findsOneWidget);
-      expect(find.text('Light'), findsOneWidget);
-      expect(find.text('Dark'), findsOneWidget);
-      expect(find.text('System'), findsOneWidget);
-      expect(find.text('Dark Mode Quick Toggle'), findsOneWidget);
       expect(find.text('Preferences'), findsOneWidget);
       expect(find.text('Haptic Feedback'), findsOneWidget);
+      expect(find.text('Daily Reminder Time'), findsOneWidget);
+
+      // Verify Appearance section and theme selectors are removed
+      expect(find.text('Appearance'), findsNothing);
+      expect(find.text('Theme Mode'), findsNothing);
+      expect(find.text('Light'), findsNothing);
+      expect(find.text('Dark'), findsNothing);
+      expect(find.text('System'), findsNothing);
+      expect(find.text('Dark Mode Quick Toggle'), findsNothing);
 
       // Verify Data & Storage and About are NOT in Settings either
       expect(find.text('Data & Storage'), findsNothing);
       expect(find.text('About'), findsNothing);
-
-      // Tap 'Dark' button in the SegmentedButton
-      await tester.tap(find.text('Dark'));
-      await tester.pumpAndSettle();
-
-      // Verify MaterialApp switched to dark mode
-      final darkApp = tester.widget<MaterialApp>(find.byType(MaterialApp));
-      expect(darkApp.themeMode, ThemeMode.dark);
-
-      // Tap 'Light' button in the SegmentedButton
-      await tester.tap(find.text('Light'));
-      await tester.pumpAndSettle();
-
-      final lightApp = tester.widget<MaterialApp>(find.byType(MaterialApp));
-      expect(lightApp.themeMode, ThemeMode.light);
     },
   );
 

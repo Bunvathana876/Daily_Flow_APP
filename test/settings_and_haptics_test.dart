@@ -10,7 +10,7 @@ void main() {
 
   group('SettingsController & Persistence Tests', () {
     test(
-      'defaults to light theme and haptics enabled when no prefs exist',
+      'defaults to dark theme and haptics enabled when no prefs exist',
       () async {
         SharedPreferences.setMockInitialValues({});
         final prefs = await SharedPreferences.getInstance();
@@ -21,10 +21,42 @@ void main() {
         addTearDown(container.dispose);
 
         final state = container.read(settingsControllerProvider);
-        expect(state.themeMode, ThemeMode.light);
+        expect(state.themeMode, ThemeMode.dark);
         expect(state.hapticsEnabled, isTrue);
       },
     );
+
+    test('migrates legacy light theme to dark in SharedPreferences', () async {
+      SharedPreferences.setMockInitialValues({
+        SettingsController.themePrefKey: 'light',
+      });
+      final prefs = await SharedPreferences.getInstance();
+
+      final container = ProviderContainer(
+        overrides: [sharedPreferencesProvider.overrideWithValue(prefs)],
+      );
+      addTearDown(container.dispose);
+
+      final state = container.read(settingsControllerProvider);
+      expect(state.themeMode, ThemeMode.dark);
+      expect(prefs.getString(SettingsController.themePrefKey), 'dark');
+    });
+
+    test('migrates legacy system theme to dark in SharedPreferences', () async {
+      SharedPreferences.setMockInitialValues({
+        SettingsController.themePrefKey: 'system',
+      });
+      final prefs = await SharedPreferences.getInstance();
+
+      final container = ProviderContainer(
+        overrides: [sharedPreferencesProvider.overrideWithValue(prefs)],
+      );
+      addTearDown(container.dispose);
+
+      final state = container.read(settingsControllerProvider);
+      expect(state.themeMode, ThemeMode.dark);
+      expect(prefs.getString(SettingsController.themePrefKey), 'dark');
+    });
 
     test(
       'restores saved dark theme and disabled haptics from SharedPreferences',
@@ -47,7 +79,7 @@ void main() {
     );
 
     test(
-      'setThemeMode updates state and persists to SharedPreferences',
+      'setThemeMode enforces dark mode and persists to SharedPreferences',
       () async {
         SharedPreferences.setMockInitialValues({});
         final prefs = await SharedPreferences.getInstance();
@@ -62,9 +94,9 @@ void main() {
 
         expect(
           container.read(settingsControllerProvider).themeMode,
-          ThemeMode.light,
+          ThemeMode.dark,
         );
-        expect(prefs.getString(SettingsController.themePrefKey), 'light');
+        expect(prefs.getString(SettingsController.themePrefKey), 'dark');
 
         await controller.setThemeMode(ThemeMode.dark);
         expect(
@@ -75,9 +107,9 @@ void main() {
       },
     );
 
-    test('toggleTheme toggles between dark and light', () async {
+    test('toggleTheme maintains dark mode', () async {
       SharedPreferences.setMockInitialValues({
-        SettingsController.themePrefKey: 'light',
+        SettingsController.themePrefKey: 'dark',
       });
       final prefs = await SharedPreferences.getInstance();
 
@@ -93,13 +125,6 @@ void main() {
         ThemeMode.dark,
       );
       expect(prefs.getString(SettingsController.themePrefKey), 'dark');
-
-      await controller.toggleTheme();
-      expect(
-        container.read(settingsControllerProvider).themeMode,
-        ThemeMode.light,
-      );
-      expect(prefs.getString(SettingsController.themePrefKey), 'light');
     });
 
     test('setHapticsEnabled persists preference', () async {

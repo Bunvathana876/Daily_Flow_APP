@@ -14,6 +14,7 @@ class KpiStatCard extends StatelessWidget {
   final String? subtitle;
   final VoidCallback? onTap;
   final bool isCompact;
+  final bool prominentValue;
 
   const KpiStatCard({
     super.key,
@@ -24,6 +25,7 @@ class KpiStatCard extends StatelessWidget {
     this.subtitle,
     this.onTap,
     this.isCompact = false,
+    this.prominentValue = false,
   });
 
   @override
@@ -33,10 +35,12 @@ class KpiStatCard extends StatelessWidget {
     return RpgCard(
       onTap: onTap,
       variant: RpgCardVariant.standard,
-      padding: EdgeInsets.symmetric(
-        horizontal: isCompact ? RpgSpacing.sm : RpgSpacing.md,
-        vertical: isCompact ? RpgSpacing.sm : RpgSpacing.md,
-      ),
+      padding: prominentValue
+          ? const EdgeInsets.symmetric(horizontal: 10, vertical: 8)
+          : EdgeInsets.symmetric(
+              horizontal: isCompact ? RpgSpacing.sm : RpgSpacing.md,
+              vertical: isCompact ? RpgSpacing.sm : RpgSpacing.md,
+            ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
@@ -44,7 +48,7 @@ class KpiStatCard extends StatelessWidget {
           Row(
             children: [
               Container(
-                padding: const EdgeInsets.all(6),
+                padding: EdgeInsets.all(prominentValue ? 4 : 6),
                 decoration: BoxDecoration(
                   color: iconColor.withValues(alpha: isDark ? 0.20 : 0.12),
                   borderRadius: RpgSpacing.roundedSmall,
@@ -59,7 +63,11 @@ class KpiStatCard extends StatelessWidget {
                     ),
                   ],
                 ),
-                child: Icon(icon, color: iconColor, size: isCompact ? 16 : 20),
+                child: Icon(
+                  icon,
+                  color: iconColor,
+                  size: prominentValue ? 14 : (isCompact ? 16 : 20),
+                ),
               ),
               if (subtitle != null) ...[
                 const SizedBox(width: 4),
@@ -82,23 +90,38 @@ class KpiStatCard extends StatelessWidget {
               ],
             ],
           ),
-          SizedBox(height: isCompact ? RpgSpacing.xs : RpgSpacing.sm),
+          SizedBox(
+            height: prominentValue
+                ? 4
+                : (isCompact ? RpgSpacing.xs : RpgSpacing.sm),
+          ),
           Text(
             value,
-            style:
-                (isCompact
-                        ? RpgTextStyles.titleMedium
-                        : RpgTextStyles.headlineMedium)
-                    .copyWith(fontWeight: FontWeight.w800, letterSpacing: -0.3),
+            style: prominentValue
+                ? TextStyle(
+                    fontSize: isCompact ? 19 : 21,
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: -0.5,
+                    color: isDark ? Colors.white : Colors.black87,
+                  )
+                : (isCompact
+                          ? RpgTextStyles.titleMedium
+                          : RpgTextStyles.headlineMedium)
+                      .copyWith(
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: -0.3,
+                      ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
           ),
-          const SizedBox(height: 2),
+          SizedBox(height: prominentValue ? 1 : 2),
           Text(
             title,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: TextStyle(
-              fontSize: isCompact ? 10 : 12,
-              fontWeight: FontWeight.w500,
+              fontSize: prominentValue ? 10.5 : (isCompact ? 10 : 12),
+              fontWeight: prominentValue ? FontWeight.w600 : FontWeight.w500,
               color: isDark ? Colors.grey.shade400 : Colors.grey.shade600,
               letterSpacing: 0.1,
             ),

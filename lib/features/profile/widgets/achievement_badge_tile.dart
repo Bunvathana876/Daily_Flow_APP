@@ -4,7 +4,7 @@ import '../../../core/theme/rpg_spacing.dart';
 import '../../gamification/models/achievement.dart';
 import 'achievement_details_dialog.dart';
 
-/// Compact RPG card tile displaying an achievement badge in the Illuminated Trophy Case.
+/// Compact RPG trophy tile displaying an achievement emblem and status in the Trophy Room Grid.
 class AchievementBadgeTile extends StatelessWidget {
   final Achievement achievement;
 
@@ -68,10 +68,7 @@ class AchievementBadgeTile extends StatelessWidget {
         onTap: () => AchievementDetailsDialog.show(context, achievement),
         borderRadius: BorderRadius.circular(RpgSpacing.radiusMd),
         child: Container(
-          constraints: const BoxConstraints(
-            minHeight: RpgSpacing.minTouchTarget,
-          ),
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
           decoration: BoxDecoration(
             color: isUnlocked
                 ? (isDark ? RpgColors.abyssNavySurface : Colors.white)
@@ -81,205 +78,232 @@ class AchievementBadgeTile extends StatelessWidget {
             borderRadius: BorderRadius.circular(RpgSpacing.radiusMd),
             border: Border.all(
               color: isUnlocked
-                  ? RpgColors.rpgGold.withValues(alpha: 0.5)
+                  ? RpgColors.rpgGold.withValues(alpha: 0.45)
                   : (isDark ? Colors.white12 : Colors.grey.shade200),
-              width: isUnlocked ? 1.5 : 1.0,
+              width: isUnlocked ? 1.2 : 1.0,
             ),
             boxShadow: [
               BoxShadow(
                 color: isUnlocked
-                    ? RpgColors.rpgGold.withValues(alpha: 0.12)
+                    ? RpgColors.rpgGold.withValues(alpha: 0.10)
                     : Colors.black.withValues(alpha: isDark ? 0.2 : 0.02),
-                blurRadius: 8,
+                blurRadius: 6,
                 offset: const Offset(0, 2),
               ),
             ],
           ),
-          child: Row(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              // Badge Icon Seal with Rarity Glow
-              Container(
-                width: 46,
-                height: 46,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  gradient: isUnlocked ? RpgColors.goldGradient : null,
-                  color: isUnlocked
-                      ? null
-                      : (isDark ? Colors.white10 : Colors.grey.shade200),
-                  border: Border.all(
-                    color: isUnlocked
-                        ? RpgColors.rpgGold
-                        : (isDark ? Colors.white12 : Colors.grey.shade300),
-                    width: 1.2,
-                  ),
-                  boxShadow: isUnlocked
-                      ? [
-                          BoxShadow(
-                            color: RpgColors.rpgGold.withValues(alpha: 0.35),
-                            blurRadius: 8,
-                            offset: const Offset(0, 2),
+              // Top tags row: Rarity tag + XP tag
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Flexible(
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 4,
+                        vertical: 1.5,
+                      ),
+                      decoration: BoxDecoration(
+                        color: rarityColor.withValues(
+                          alpha: isDark ? 0.18 : 0.12,
+                        ),
+                        borderRadius: BorderRadius.circular(3),
+                        border: Border.all(
+                          color: rarityColor.withValues(
+                            alpha: isDark ? 0.4 : 0.25,
                           ),
-                        ]
-                      : null,
-                ),
-                child: Center(
-                  child: Icon(
-                    iconData,
-                    size: 24,
-                    color: isUnlocked
-                        ? Colors.white
-                        : (isDark
-                              ? Colors.grey.shade500
-                              : Colors.grey.shade600),
+                          width: 0.7,
+                        ),
+                      ),
+                      child: Text(
+                        rarityLabel,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 8,
+                          fontWeight: FontWeight.w800,
+                          color: rarityColor,
+                          letterSpacing: 0.3,
+                        ),
+                      ),
+                    ),
                   ),
+                  const SizedBox(width: 4),
+                  Flexible(
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 4,
+                        vertical: 1.5,
+                      ),
+                      decoration: BoxDecoration(
+                        color: RpgColors.rpgGold.withValues(alpha: 0.15),
+                        borderRadius: BorderRadius.circular(3),
+                      ),
+                      child: Text(
+                        '+${achievement.xpReward} XP',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          fontSize: 8,
+                          fontWeight: FontWeight.w800,
+                          color: RpgColors.rpgGold,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 4),
+
+              // Emblem Circle with Icon & Status Lock/Check badge
+              Stack(
+                clipBehavior: Clip.none,
+                alignment: Alignment.center,
+                children: [
+                  Container(
+                    width: 38,
+                    height: 38,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      gradient: isUnlocked ? RpgColors.goldGradient : null,
+                      color: isUnlocked
+                          ? null
+                          : (isDark ? Colors.white10 : Colors.grey.shade200),
+                      border: Border.all(
+                        color: isUnlocked
+                            ? RpgColors.rpgGold
+                            : (isDark ? Colors.white12 : Colors.grey.shade300),
+                        width: 1.2,
+                      ),
+                      boxShadow: isUnlocked
+                          ? [
+                              BoxShadow(
+                                color: RpgColors.rpgGold.withValues(
+                                  alpha: 0.30,
+                                ),
+                                blurRadius: 6,
+                                offset: const Offset(0, 2),
+                              ),
+                            ]
+                          : null,
+                    ),
+                    child: Center(
+                      child: Icon(
+                        iconData,
+                        size: 20,
+                        color: isUnlocked
+                            ? Colors.white
+                            : (isDark
+                                  ? Colors.grey.shade500
+                                  : Colors.grey.shade600),
+                      ),
+                    ),
+                  ),
+                  Positioned(
+                    right: -3,
+                    bottom: -3,
+                    child: Container(
+                      padding: const EdgeInsets.all(2),
+                      decoration: BoxDecoration(
+                        color: isDark
+                            ? RpgColors.abyssNavySurface
+                            : Colors.white,
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: isUnlocked
+                              ? RpgColors.questEmerald
+                              : (isDark
+                                    ? Colors.white24
+                                    : Colors.grey.shade300),
+                          width: 1.0,
+                        ),
+                      ),
+                      child: Icon(
+                        isUnlocked
+                            ? Icons.check_circle_rounded
+                            : Icons.lock_outline_rounded,
+                        size: 11,
+                        color: isUnlocked
+                            ? RpgColors.questEmerald
+                            : (isDark
+                                  ? Colors.grey.shade500
+                                  : Colors.grey.shade400),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 6),
+
+              // Title
+              Text(
+                achievement.title,
+                textAlign: TextAlign.center,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w800,
+                  color: isDark ? Colors.white : Colors.black87,
                 ),
               ),
-              const SizedBox(width: 12),
+              const SizedBox(height: 4),
 
-              // Title, Lore & Progress
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Row(
-                            children: [
-                              Flexible(
-                                child: Text(
-                                  achievement.title,
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.bold,
-                                    color: isDark
-                                        ? Colors.white
-                                        : Colors.black87,
-                                  ),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              ),
-                              const SizedBox(width: 6),
-                              // Rarity Tag
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 5,
-                                  vertical: 1.5,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: rarityColor.withValues(
-                                    alpha: isDark ? 0.18 : 0.12,
-                                  ),
-                                  borderRadius: BorderRadius.circular(4),
-                                  border: Border.all(
-                                    color: rarityColor.withValues(
-                                      alpha: isDark ? 0.4 : 0.25,
-                                    ),
-                                    width: 0.8,
-                                  ),
-                                ),
-                                child: Text(
-                                  rarityLabel,
-                                  style: TextStyle(
-                                    fontSize: 8.5,
-                                    fontWeight: FontWeight.w800,
-                                    color: rarityColor,
-                                    letterSpacing: 0.4,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(width: 6),
-                        // XP Tag
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 6,
-                            vertical: 2,
-                          ),
-                          decoration: BoxDecoration(
-                            color: RpgColors.rpgGold.withValues(alpha: 0.15),
-                            borderRadius: BorderRadius.circular(4),
-                          ),
-                          child: Text(
-                            '+${achievement.xpReward} XP',
-                            style: const TextStyle(
-                              fontSize: 10,
-                              fontWeight: FontWeight.w800,
-                              color: RpgColors.rpgGold,
-                            ),
-                          ),
-                        ),
-                      ],
+              // Progress Bar & Counter (or Status when Unlocked)
+              if (isUnlocked)
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 6,
+                    vertical: 1.5,
+                  ),
+                  decoration: BoxDecoration(
+                    color: RpgColors.questEmerald.withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(3),
+                  ),
+                  child: const Text(
+                    'UNLOCKED',
+                    style: TextStyle(
+                      fontSize: 8,
+                      fontWeight: FontWeight.w800,
+                      color: RpgColors.questEmerald,
+                      letterSpacing: 0.4,
                     ),
-                    const SizedBox(height: 3),
+                  ),
+                )
+              else
+                Row(
+                  children: [
+                    Expanded(
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(2),
+                        child: LinearProgressIndicator(
+                          value: ratio,
+                          minHeight: 3.5,
+                          backgroundColor: isDark
+                              ? Colors.white10
+                              : Colors.grey.shade200,
+                          valueColor: const AlwaysStoppedAnimation<Color>(
+                            RpgColors.questEmerald,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 4),
                     Text(
-                      achievement.description,
+                      '${achievement.currentProgress}/${achievement.targetValue}',
                       style: TextStyle(
-                        fontSize: 11,
+                        fontSize: 8.5,
+                        fontWeight: FontWeight.w700,
                         color: isDark
                             ? Colors.grey.shade400
                             : Colors.grey.shade600,
                       ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: 6),
-
-                    // Progress bar & counter
-                    Row(
-                      children: [
-                        Expanded(
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(2),
-                            child: LinearProgressIndicator(
-                              value: ratio,
-                              minHeight: 4,
-                              backgroundColor: isDark
-                                  ? Colors.white10
-                                  : Colors.grey.shade200,
-                              valueColor: AlwaysStoppedAnimation<Color>(
-                                isUnlocked
-                                    ? RpgColors.rpgGold
-                                    : RpgColors.questEmerald,
-                              ),
-                            ),
-                          ),
-                        ),
-                        if (!isUnlocked) ...[
-                          const SizedBox(width: 6),
-                          Text(
-                            '${achievement.currentProgress}/${achievement.targetValue}',
-                            style: TextStyle(
-                              fontSize: 9.5,
-                              fontWeight: FontWeight.w700,
-                              color: isDark
-                                  ? Colors.grey.shade500
-                                  : Colors.grey.shade600,
-                            ),
-                          ),
-                        ],
-                      ],
                     ),
                   ],
                 ),
-              ),
-              const SizedBox(width: 10),
-
-              // Status Icon / Lock
-              Icon(
-                isUnlocked
-                    ? Icons.check_circle_rounded
-                    : Icons.lock_outline_rounded,
-                size: 20,
-                color: isUnlocked
-                    ? RpgColors.questEmerald
-                    : (isDark ? Colors.grey.shade600 : Colors.grey.shade400),
-              ),
             ],
           ),
         ),

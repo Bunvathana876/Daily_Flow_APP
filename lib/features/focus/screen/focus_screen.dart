@@ -7,7 +7,6 @@ import '../../../../core/theme/rpg_colors.dart';
 import '../../../../core/theme/rpg_spacing.dart';
 import '../../../../core/widgets/cozy_background.dart';
 import '../../../../core/widgets/rpg_gemstone_badge.dart';
-import '../../../../core/theme/theme_provider.dart';
 import '../../gamification/controllers/gamification_controller.dart';
 import '../../habits/controllers/habit_controller.dart';
 import '../../habits/models/habit.dart';
@@ -147,16 +146,6 @@ class _FocusScreenState extends ConsumerState<FocusScreen>
         ),
         backgroundColor: Colors.transparent,
         elevation: 0,
-        actions: [
-          IconButton(
-            icon: Icon(
-              isDark ? Icons.light_mode_rounded : Icons.dark_mode_rounded,
-            ),
-            tooltip: 'Toggle Theme',
-            onPressed: () => ref.read(themeModeProvider.notifier).toggleTheme(),
-          ),
-          const SizedBox(width: 8),
-        ],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),

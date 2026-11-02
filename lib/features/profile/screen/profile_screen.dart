@@ -53,6 +53,40 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     );
   }
 
+  IconData _getCategoryIcon(String category) {
+    switch (category.toLowerCase()) {
+      case 'general':
+        return Icons.bookmark_rounded;
+      case 'health':
+        return Icons.favorite_rounded;
+      case 'study':
+        return Icons.auto_stories_rounded;
+      case 'coding':
+        return Icons.code_rounded;
+      case 'fitness':
+        return Icons.fitness_center_rounded;
+      default:
+        return Icons.category_rounded;
+    }
+  }
+
+  Color _getCategoryColor(String category) {
+    switch (category.toLowerCase()) {
+      case 'general':
+        return RpgColors.arcaneViolet;
+      case 'health':
+        return RpgColors.questEmerald;
+      case 'study':
+        return const Color(0xFF38BDF8);
+      case 'coding':
+        return RpgColors.rpgIndigo;
+      case 'fitness':
+        return Colors.deepOrange;
+      default:
+        return RpgColors.rpgGold;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
@@ -140,7 +174,10 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
             children: [
               // 1. Epic Hero Character Card (Hero's Armory)
               RpgCard(
-                padding: const EdgeInsets.all(RpgSpacing.lg),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 14,
+                ),
                 variant: RpgCardVariant.elevated,
                 showCornerAccents: true,
                 borderColor: isDark
@@ -155,7 +192,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                         // Large Hero Crest with Rank-Based Visual Frame
                         HeroAvatarBadge(
                           avatarId: profile.avatarId,
-                          size: isNarrow ? 62 : 72,
+                          size: isNarrow ? 56 : 64,
                           playerLevel: profile.currentLevel,
                           showEditOverlay: true,
                           onTap: () => _openCustomizationDialog(
@@ -269,17 +306,17 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                         ),
                       ],
                     ),
-                    const SizedBox(height: RpgSpacing.md),
+                    const SizedBox(height: 12),
 
                     // XP Progress to Next Level
                     XpProgressBar(
                       currentXp: profile.xpInLevel,
                       requiredXp: profile.xpForNextLevel,
                       progressRatio: profile.levelProgress,
-                      height: 8.0,
+                      height: 7.0,
                       leadingLabel: 'LEVEL ${profile.currentLevel} PROGRESS',
                     ),
-                    const SizedBox(height: 10),
+                    const SizedBox(height: 8),
 
                     // Total XP & Badges Ribbon
                     Row(
@@ -332,28 +369,19 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                   ],
                 ),
               ),
-              const SizedBox(height: 14),
+              const SizedBox(height: 10),
 
-              // 2. Verified KPI Stats Row (Responsive for 320px screens)
+              // 2. Three Compact Primary Metric Cards (Matching dimensions, rounded surfaces)
               Row(
                 children: [
-                  Expanded(
-                    child: KpiStatCard(
-                      title: 'Active Habits',
-                      value: '${habits.length}',
-                      icon: Icons.checklist_rounded,
-                      iconColor: RpgColors.rpgIndigo,
-                      isCompact: isNarrow,
-                    ),
-                  ),
-                  const SizedBox(width: 8),
                   Expanded(
                     child: KpiStatCard(
                       title: 'Total Check-ins',
                       value: '$totalCompletions',
                       icon: Icons.check_circle_rounded,
                       iconColor: RpgColors.questEmerald,
-                      isCompact: isNarrow,
+                      isCompact: true,
+                      prominentValue: true,
                     ),
                   ),
                   const SizedBox(width: 8),
@@ -363,12 +391,72 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                       value: '$bestStreak d',
                       icon: Icons.local_fire_department_rounded,
                       iconColor: Colors.deepOrange,
-                      isCompact: isNarrow,
+                      isCompact: true,
+                      prominentValue: true,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: KpiStatCard(
+                      title: 'Achievements',
+                      value: '$unlockedCount',
+                      icon: Icons.military_tech_rounded,
+                      iconColor: RpgColors.rpgGold,
+                      isCompact: true,
+                      prominentValue: true,
                     ),
                   ),
                 ],
               ),
-              const SizedBox(height: 14),
+              const SizedBox(height: 8),
+
+              // Secondary Metrics Strip: Active Habits Overview
+              RpgCard(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 8,
+                ),
+                variant: RpgCardVariant.standard,
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(5),
+                      decoration: BoxDecoration(
+                        color: RpgColors.rpgIndigo.withValues(
+                          alpha: isDark ? 0.20 : 0.12,
+                        ),
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: const Icon(
+                        Icons.checklist_rounded,
+                        color: RpgColors.rpgIndigo,
+                        size: 15,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    const Expanded(
+                      child: Text(
+                        'Active Habits',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 12.5,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
+                    Text(
+                      '${habits.length}',
+                      style: const TextStyle(
+                        fontSize: 12.5,
+                        fontWeight: FontWeight.w800,
+                        color: RpgColors.rpgIndigo,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 8),
 
               // 3. Settings Card Link
               RpgCard(
@@ -382,15 +470,18 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                   );
                 },
                 child: ListTile(
+                  dense: true,
                   contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 4,
+                    horizontal: 14,
+                    vertical: 2,
                   ),
                   leading: Container(
-                    padding: const EdgeInsets.all(8),
+                    padding: const EdgeInsets.all(6),
                     decoration: BoxDecoration(
-                      color: RpgColors.arcaneViolet.withValues(alpha: 0.14),
-                      borderRadius: BorderRadius.circular(10),
+                      color: RpgColors.arcaneViolet.withValues(
+                        alpha: isDark ? 0.18 : 0.12,
+                      ),
+                      borderRadius: BorderRadius.circular(8),
                       border: Border.all(
                         color: RpgColors.arcaneViolet.withValues(alpha: 0.3),
                         width: 1.0,
@@ -399,21 +490,21 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                     child: const Icon(
                       Icons.settings_rounded,
                       color: RpgColors.arcaneViolet,
-                      size: 20,
+                      size: 18,
                     ),
                   ),
                   title: const Text(
                     'Settings',
-                    style: TextStyle(fontWeight: FontWeight.w700, fontSize: 15),
+                    style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14),
                   ),
                   subtitle: const Text(
-                    'Dark mode, themes, haptics & preferences',
-                    style: TextStyle(fontSize: 12),
+                    'Preferences, reminders & haptics',
+                    style: TextStyle(fontSize: 11),
                   ),
-                  trailing: const Icon(Icons.chevron_right_rounded),
+                  trailing: const Icon(Icons.chevron_right_rounded, size: 20),
                 ),
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 12),
 
               // 4. Illuminated Achievement Trophy Room
               Row(
@@ -425,17 +516,17 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                       children: [
                         Icon(
                           Icons.military_tech_rounded,
-                          size: 20,
+                          size: 18,
                           color: RpgColors.rpgGold,
                         ),
                         SizedBox(width: 6),
                         Flexible(
                           child: Text(
-                            'Achievements',
+                            'Trophy Collection',
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: TextStyle(
-                              fontSize: 16,
+                              fontSize: 15,
                               fontWeight: FontWeight.w900,
                               letterSpacing: 0.3,
                             ),
@@ -448,7 +539,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                   Container(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 8,
-                      vertical: 3,
+                      vertical: 2.5,
                     ),
                     decoration: BoxDecoration(
                       color: isDark
@@ -471,7 +562,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                   ),
                 ],
               ),
-              const SizedBox(height: 10),
+              const SizedBox(height: 8),
 
               // Path Filter Chips
               SingleChildScrollView(
@@ -520,12 +611,12 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                       }).toList(),
                 ),
               ),
-              const SizedBox(height: 10),
+              const SizedBox(height: 8),
 
-              // Achievement Badges List
+              // Achievement Badges Grid (Responsive: 3 cols standard, 2 cols on small screens)
               if (filteredAchievements.isEmpty)
                 Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 24),
+                  padding: const EdgeInsets.symmetric(vertical: 14),
                   child: Center(
                     child: Text(
                       'No badges in this path yet.',
@@ -539,15 +630,25 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                   ),
                 )
               else
-                ...filteredAchievements.map((achievement) {
-                  return Padding(
-                    padding: const EdgeInsets.only(bottom: 8),
-                    child: AchievementBadgeTile(achievement: achievement),
-                  );
-                }),
-              const SizedBox(height: 20),
+                GridView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: filteredAchievements.length,
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: isNarrow ? 2 : 3,
+                    crossAxisSpacing: 8,
+                    mainAxisSpacing: 8,
+                    childAspectRatio: isNarrow ? 0.86 : 0.74,
+                  ),
+                  itemBuilder: (context, index) {
+                    return AchievementBadgeTile(
+                      achievement: filteredAchievements[index],
+                    );
+                  },
+                ),
+              const SizedBox(height: 14),
 
-              // 5. Category Breakdown Section (Preserved for analytics and tests)
+              // 5. Category Breakdown Section (Compact Analytics with real counts and bars)
               const Row(
                 children: [
                   Icon(
@@ -569,7 +670,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
               const SizedBox(height: 10),
 
               RpgCard(
-                padding: const EdgeInsets.all(14),
+                padding: const EdgeInsets.all(12),
                 variant: RpgCardVariant.standard,
                 child: habits.isEmpty
                     ? Center(
@@ -586,35 +687,87 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                           ),
                         ),
                       )
-                    : Wrap(
-                        spacing: 8,
-                        runSpacing: 8,
+                    : Column(
                         children: AppConstants.habitCategories.map((category) {
                           final count = categoryCounts[category] ?? 0;
-                          return Chip(
-                            avatar: CircleAvatar(
-                              backgroundColor: RpgColors.arcaneViolet,
-                              radius: 10,
-                              child: Text(
-                                '$count',
-                                style: const TextStyle(
-                                  fontSize: 10,
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
+                          final ratio = habits.isEmpty
+                              ? 0.0
+                              : count / habits.length;
+                          final color = _getCategoryColor(category);
+                          final icon = _getCategoryIcon(category);
+
+                          return Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 4),
+                            child: Row(
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.all(4),
+                                  decoration: BoxDecoration(
+                                    color: color.withValues(
+                                      alpha: isDark ? 0.20 : 0.12,
+                                    ),
+                                    borderRadius: BorderRadius.circular(6),
+                                  ),
+                                  child: Icon(icon, size: 14, color: color),
                                 ),
-                              ),
+                                const SizedBox(width: 8),
+                                SizedBox(
+                                  width: 60,
+                                  child: Text(
+                                    category,
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w600,
+                                      color: isDark
+                                          ? Colors.white70
+                                          : Colors.black87,
+                                    ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(3),
+                                    child: LinearProgressIndicator(
+                                      value: ratio,
+                                      minHeight: 5,
+                                      backgroundColor: isDark
+                                          ? Colors.white10
+                                          : Colors.grey.shade200,
+                                      valueColor: AlwaysStoppedAnimation<Color>(
+                                        count > 0 ? color : Colors.transparent,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 10),
+                                SizedBox(
+                                  width: 24,
+                                  child: Text(
+                                    '$count',
+                                    textAlign: TextAlign.end,
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w800,
+                                      color: count > 0
+                                          ? (isDark
+                                                ? Colors.white
+                                                : Colors.black87)
+                                          : (isDark
+                                                ? Colors.grey.shade600
+                                                : Colors.grey.shade400),
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
-                            label: Text(category),
-                            backgroundColor: count > 0
-                                ? RpgColors.arcaneViolet.withValues(alpha: 0.12)
-                                : (isDark
-                                      ? const Color(0xFF0F172A)
-                                      : Colors.grey.shade100),
                           );
                         }).toList(),
                       ),
               ),
-              const SizedBox(height: 36),
+              const SizedBox(height: 84), // Clearance above floating bottom nav
             ],
           );
         },
