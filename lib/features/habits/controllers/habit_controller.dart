@@ -68,6 +68,9 @@ class HabitController extends Notifier<List<Habit>> {
 
   Future<void> toggleHabitOnDate(Habit habit, String dateStr) async {
     if (habit.id == null) return;
+    // Enforce today-only habit completion at business logic level
+    if (!AppDateUtils.isToday(dateStr)) return;
+
     final updatedDates = Set<String>.from(habit.completedDates);
     final isCurrentlyCompleted = updatedDates.contains(dateStr);
 
@@ -105,7 +108,7 @@ class HabitController extends Notifier<List<Habit>> {
   }
 
   Future<void> toggleHabitForToday(Habit habit) =>
-      toggleHabitOnDate(habit, Habit.formatDate(DateTime.now()));
+      toggleHabitOnDate(habit, AppDateUtils.todayString);
 
   Future<void> restoreHabit(Habit habit) async {
     await _repository.restoreHabit(habit);

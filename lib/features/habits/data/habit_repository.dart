@@ -122,6 +122,12 @@ class SqliteHabitRepository implements HabitRepository {
     required String dateStr,
     required bool isCompleted,
   }) async {
+    if (!AppDateUtils.isToday(dateStr)) {
+      throw ArgumentError(
+        'Habits can only be checked or unchecked for today (${AppDateUtils.todayString}). Attempted date: $dateStr',
+      );
+    }
+
     final db = await _dbHelper.database;
     await db.transaction((txn) async {
       if (isCompleted) {

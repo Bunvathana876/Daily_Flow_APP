@@ -8,6 +8,7 @@ class AvatarCrestInfo {
   final String role;
   final IconData icon;
   final LinearGradient gradient;
+  final String assetPath;
 
   const AvatarCrestInfo({
     required this.id,
@@ -15,6 +16,7 @@ class AvatarCrestInfo {
     required this.role,
     required this.icon,
     required this.gradient,
+    this.assetPath = '',
   });
 }
 
@@ -26,6 +28,7 @@ class HeroAvatarRegistry {
       role: 'Guardian',
       icon: Icons.shield_rounded,
       gradient: RpgColors.violetGradient,
+      assetPath: 'assets/images/hero/knight_of_valor.png',
     ),
     AvatarCrestInfo(
       id: 'arcane_mage',
@@ -37,6 +40,7 @@ class HeroAvatarRegistry {
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
       ),
+      assetPath: 'assets/images/hero/arcane_sorcerer.png',
     ),
     AvatarCrestInfo(
       id: 'ranger_hood',
@@ -44,6 +48,7 @@ class HeroAvatarRegistry {
       role: 'Scout',
       icon: Icons.nature_people_rounded,
       gradient: RpgColors.emeraldGradient,
+      assetPath: 'assets/images/hero/woodland_ranger.png',
     ),
     AvatarCrestInfo(
       id: 'paladin_crest',
@@ -51,6 +56,7 @@ class HeroAvatarRegistry {
       role: 'Champion',
       icon: Icons.workspace_premium_rounded,
       gradient: RpgColors.goldGradient,
+      assetPath: 'assets/images/hero/radiant_paladin.png',
     ),
     AvatarCrestInfo(
       id: 'valkyrie_wings',
@@ -62,6 +68,7 @@ class HeroAvatarRegistry {
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
       ),
+      assetPath: 'assets/images/hero/sky_valkyrie.png',
     ),
     AvatarCrestInfo(
       id: 'shadow_blade',
@@ -73,6 +80,7 @@ class HeroAvatarRegistry {
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
       ),
+      assetPath: 'assets/images/hero/shadow_rogue.png',
     ),
   ];
 
@@ -124,9 +132,28 @@ class HeroAvatarBadge extends StatelessWidget {
           ),
         ],
       ),
-      child: Center(
-        child: Icon(crest.icon, color: Colors.white, size: innerSize * 0.52),
-      ),
+      child: crest.assetPath.isNotEmpty
+          ? Padding(
+              padding: EdgeInsets.all(innerSize * 0.08),
+              child: Image.asset(
+                crest.assetPath,
+                fit: BoxFit.contain,
+                errorBuilder: (context, error, stackTrace) => Center(
+                  child: Icon(
+                    crest.icon,
+                    color: Colors.white,
+                    size: innerSize * 0.52,
+                  ),
+                ),
+              ),
+            )
+          : Center(
+              child: Icon(
+                crest.icon,
+                color: Colors.white,
+                size: innerSize * 0.52,
+              ),
+            ),
     );
 
     Widget badge;

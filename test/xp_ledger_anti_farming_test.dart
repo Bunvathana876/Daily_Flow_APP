@@ -228,29 +228,33 @@ void main() {
       },
     );
 
-    test('Backdated completion logs with correct historical date', () async {
-      final habit = await habitRepo.createHabit(
-        title: 'Evening Walk',
-        category: 'Health',
-        colorValue: 0xFF059669,
-      );
+    test(
+      'Rejects backdated completion attempt and does not award XP or create logs',
+      () async {
+        final habit = await habitRepo.createHabit(
+          title: 'Evening Walk',
+          category: 'Health',
+          colorValue: 0xFF059669,
+        );
 
-      const pastDate = '2026-10-25';
+        const pastDate = '2026-10-25';
 
-      await habitRepo.toggleHabitLog(
-        habitId: habit.id!,
-        dateStr: pastDate,
-        isCompleted: false,
-      );
+        // Expect ArgumentError when attempting to toggle a historical date
+        expect(
+          () => habitRepo.toggleHabitLog(
+            habitId: habit.id!,
+            dateStr: pastDate,
+            isCompleted: false,
+          ),
+          throwsA(isA<ArgumentError>()),
+        );
 
-      final entries = await gamificationRepo.getXpEntries();
-      expect(entries.length, 1);
-      expect(entries.first.eventDate, pastDate);
-      expect(entries.first.xpAmount, 20);
-      expect(entries.first.status, XpStatus.active);
+        final entries = await gamificationRepo.getXpEntries();
+        expect(entries, isEmpty);
 
-      expect(await gamificationRepo.getTotalActiveXp(), 20);
-    });
+        expect(await gamificationRepo.getTotalActiveXp(), 0);
+      },
+    );
 
     test('Focus challenge awards XP and enforces 180 XP daily cap', () async {
       const todayStr = '2026-11-01';

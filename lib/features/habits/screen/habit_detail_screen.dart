@@ -22,7 +22,7 @@ class _HabitDetailScreenState extends ConsumerState<HabitDetailScreen> {
   @override
   void initState() {
     super.initState();
-    final now = DateTime.now();
+    final now = AppDateUtils.now();
     _displayedMonth = DateTime(now.year, now.month, 1);
   }
 
@@ -298,8 +298,8 @@ class _HabitDetailScreenState extends ConsumerState<HabitDetailScreen> {
     final firstWeekday = DateTime(year, month, 1).weekday; // 1 = Mon, 7 = Sun
     final leadingBlanks = firstWeekday - 1;
 
-    final today = DateTime.now();
-    final todayNormalized = DateTime(today.year, today.month, today.day);
+    final today = AppDateUtils.now();
+    final todayNormalized = AppDateUtils.normalizeDate(today);
 
     final totalCells = leadingBlanks + daysInMonth;
     final rowsCount = (totalCells / 7).ceil();
@@ -322,56 +322,70 @@ class _HabitDetailScreenState extends ConsumerState<HabitDetailScreen> {
               final isFuture = dayDate.isAfter(todayNormalized);
               final isCompleted = habit.completedDates.contains(dateStr);
 
-              return GestureDetector(
-                behavior: HitTestBehavior.opaque,
-                onTap: isFuture
-                    ? null
-                    : () {
-                        HapticFeedback.lightImpact();
-                        ref
-                            .read(habitControllerProvider.notifier)
-                            .toggleHabitOnDate(habit, dateStr);
-                      },
-                child: Container(
-                  width: 36,
-                  height: 36,
-                  decoration: BoxDecoration(
-                    color: isCompleted
+              Widget cellContent = Container(
+                width: 36,
+                height: 36,
+                decoration: BoxDecoration(
+                  color: isCompleted
+                      ? accentColor
+                      : (isToday
+                            ? accentColor.withValues(alpha: 0.1)
+                            : Colors.transparent),
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: isToday
                         ? accentColor
-                        : (isToday
-                              ? accentColor.withValues(alpha: 0.1)
-                              : Colors.transparent),
-                    shape: BoxShape.circle,
-                    border: Border.all(
-                      color: isToday
-                          ? accentColor
-                          : (isCompleted
-                                ? accentColor
-                                : (isDark
-                                      ? Colors.white10
-                                      : Colors.grey.shade200)),
-                      width: isToday ? 2 : 1,
-                    ),
+                        : (isCompleted
+                              ? accentColor
+                              : (isDark
+                                    ? Colors.white10
+                                    : Colors.grey.shade200)),
+                    width: isToday ? 2 : 1,
                   ),
-                  child: Center(
-                    child: Text(
-                      '$dayNumber',
-                      style: TextStyle(
-                        fontSize: 13,
-                        fontWeight: (isToday || isCompleted)
-                            ? FontWeight.bold
-                            : FontWeight.normal,
-                        color: isCompleted
-                            ? Colors.white
-                            : (isFuture
-                                  ? (isDark
-                                        ? Colors.white24
-                                        : Colors.grey.shade400)
-                                  : (isDark ? Colors.white : Colors.black87)),
-                      ),
+                ),
+                child: Center(
+                  child: Text(
+                    '$dayNumber',
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: (isToday || isCompleted)
+                          ? FontWeight.bold
+                          : FontWeight.normal,
+                      color: isCompleted
+                          ? Colors.white
+                          : (isFuture
+                                ? (isDark
+                                      ? Colors.white24
+                                      : Colors.grey.shade400)
+                                : (isDark ? Colors.white70 : Colors.black87)),
                     ),
                   ),
                 ),
+              );
+
+              if (isToday) {
+                return Semantics(
+                  button: true,
+                  label:
+                      'Day $dayNumber (Today): ${isCompleted ? "Completed" : "Not completed"}',
+                  child: GestureDetector(
+                    behavior: HitTestBehavior.opaque,
+                    onTap: () {
+                      HapticFeedback.lightImpact();
+                      ref
+                          .read(habitControllerProvider.notifier)
+                          .toggleHabitForToday(habit);
+                    },
+                    child: cellContent,
+                  ),
+                );
+              }
+
+              return Semantics(
+                button: false,
+                label:
+                    'Day $dayNumber: ${isCompleted ? "Completed" : "Not completed"} (Read-only)',
+                child: cellContent,
               );
             }),
           ),

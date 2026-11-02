@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/constants/app_constants.dart';
 import '../../../core/services/haptics_service.dart';
 import '../../../core/theme/rpg_colors.dart';
+import '../../../core/utils/date_utils.dart';
 import '../../../core/widgets/cozy_background.dart';
 import '../../../core/widgets/cozy_button.dart';
 import '../../../core/widgets/rpg_celebration_banner.dart';
@@ -133,6 +134,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       }
     });
 
+    // Watch currentDateProvider so the UI automatically updates on midnight or date rollover
+    ref.watch(currentDateProvider);
     final habits = ref.watch(habitControllerProvider);
     final selectedCategory = ref.watch(categoryFilterProvider);
     final isDark = Theme.of(context).brightness == Brightness.dark;

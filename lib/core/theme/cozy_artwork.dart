@@ -12,6 +12,28 @@ class CozyArtwork {
   static const String chestAdventure = 'assets/images/chest_adventure.png';
   static const String bgFocusChamber = 'assets/images/bg_focus_chamber.png';
 
+  // Hero Avatar Crest Asset Paths
+  static const String heroKnightOfValor =
+      'assets/images/hero/knight_of_valor.png';
+  static const String heroArcaneSorcerer =
+      'assets/images/hero/arcane_sorcerer.png';
+  static const String heroWoodlandRanger =
+      'assets/images/hero/woodland_ranger.png';
+  static const String heroRadiantPaladin =
+      'assets/images/hero/radiant_paladin.png';
+  static const String heroSkyValkyrie = 'assets/images/hero/sky_valkyrie.png';
+  static const String heroShadowRogue = 'assets/images/hero/shadow_rogue.png';
+
+  /// All 6 registered Hero Avatar Crest assets.
+  static const List<String> heroAssets = [
+    heroKnightOfValor,
+    heroArcaneSorcerer,
+    heroWoodlandRanger,
+    heroRadiantPaladin,
+    heroSkyValkyrie,
+    heroShadowRogue,
+  ];
+
   /// All registered Cozy Adventure RPG artwork assets.
   static const List<String> allAssets = [
     heroPortraitDefault,

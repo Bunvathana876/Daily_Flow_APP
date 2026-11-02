@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'core/services/notification_service.dart';
 import 'core/theme/app_theme.dart';
 import 'core/theme/rpg_colors.dart';
+import 'core/utils/date_utils.dart';
 import 'features/navigation/screen/main_shell.dart';
 import 'features/settings/controllers/settings_controller.dart';
 import 'features/splash/screen/splash_screen.dart';
@@ -103,6 +104,8 @@ class _DailyFlowAppState extends ConsumerState<DailyFlowApp>
       ref
           .read(settingsControllerProvider.notifier)
           .checkPermissionAndReconcile();
+      // Re-evaluate current local calendar date on app resume
+      ref.read(currentDateProvider.notifier).checkDateChanged();
     }
   }
 

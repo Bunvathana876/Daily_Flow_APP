@@ -303,7 +303,7 @@ class HabitTile extends StatelessWidget {
                     ),
                   ),
 
-                  // 7-Day Runic Completion Strip with 48x48px Touch Targets
+                  // 7-Day Runic Completion Strip with 48x48px Touch Targets (Today interactive only)
                   Padding(
                     padding: const EdgeInsets.fromLTRB(10, 0, 10, 8),
                     child: Row(
@@ -314,111 +314,164 @@ class HabitTile extends StatelessWidget {
                         );
                         final isToday = day.dateStr == todayStr;
 
-                        return Expanded(
-                          child: Semantics(
-                            button: true,
-                            label:
-                                '${day.label}: ${isCompleted ? "Completed" : "Not completed"}',
-                            child: GestureDetector(
-                              behavior: HitTestBehavior.opaque,
-                              onTap: () {
-                                _triggerRunicHaptic();
-                                onToggleDate(day.dateStr);
-                              },
-                              child: Container(
-                                constraints: const BoxConstraints(
-                                  minHeight: RpgSpacing.minTouchTarget,
-                                ),
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Text(
-                                      day.label,
-                                      style: TextStyle(
-                                        fontSize: 10.5,
-                                        fontWeight: isToday
-                                            ? FontWeight.w800
-                                            : FontWeight.w600,
-                                        color: isToday
-                                            ? (isDark
-                                                  ? RpgColors.rpgGold
-                                                  : accentColor)
-                                            : (isDark
-                                                  ? Colors.grey.shade400
-                                                  : Colors.grey.shade600),
-                                      ),
-                                    ),
-                                    const SizedBox(height: 3),
-                                    AnimatedContainer(
-                                      duration: disableAnimations
-                                          ? Duration.zero
-                                          : const Duration(milliseconds: 200),
-                                      width: 24,
-                                      height: 24,
-                                      decoration: BoxDecoration(
-                                        shape: BoxShape.circle,
-                                        gradient: isCompleted
-                                            ? RpgColors.emeraldGradient
-                                            : null,
-                                        color: isCompleted
-                                            ? null
-                                            : (isDark
-                                                  ? Colors.white10
-                                                  : Colors.grey.shade100),
-                                        border: Border.all(
-                                          color: isToday && !isCompleted
-                                              ? (isDark
-                                                    ? RpgColors.rpgGold
-                                                    : accentColor)
-                                              : (isCompleted
-                                                    ? RpgColors.questEmerald
-                                                    : (isDark
-                                                          ? Colors.white24
-                                                          : Colors
-                                                                .grey
-                                                                .shade300)),
-                                          width: isToday ? 1.5 : 1.0,
-                                        ),
-                                        boxShadow: isCompleted
-                                            ? [
-                                                BoxShadow(
-                                                  color: RpgColors.questEmerald
-                                                      .withValues(
-                                                        alpha: isDark
-                                                            ? 0.22
-                                                            : 0.14,
-                                                      ),
-                                                  blurRadius: 3,
-                                                ),
-                                              ]
-                                            : null,
-                                      ),
-                                      child: Center(
-                                        child: isCompleted
-                                            ? const Icon(
-                                                Icons.check_rounded,
-                                                size: 14,
-                                                color: Colors.white,
-                                              )
-                                            : (isToday
-                                                  ? Container(
-                                                      width: 5,
-                                                      height: 5,
-                                                      decoration: BoxDecoration(
-                                                        shape: BoxShape.circle,
-                                                        color: isDark
-                                                            ? RpgColors.rpgGold
-                                                            : accentColor,
-                                                      ),
-                                                    )
-                                                  : null),
-                                      ),
-                                    ),
-                                  ],
+                        Widget dayIndicator = Container(
+                          constraints: const BoxConstraints(
+                            minHeight: RpgSpacing.minTouchTarget,
+                          ),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                day.label,
+                                style: TextStyle(
+                                  fontSize: 10.5,
+                                  fontWeight: isToday
+                                      ? FontWeight.w800
+                                      : FontWeight.w600,
+                                  color: isToday
+                                      ? (isDark
+                                            ? RpgColors.rpgGold
+                                            : accentColor)
+                                      : (isDark
+                                            ? Colors.grey.shade400
+                                            : Colors.grey.shade600),
                                 ),
                               ),
+                              const SizedBox(height: 3),
+                              AnimatedContainer(
+                                duration: disableAnimations
+                                    ? Duration.zero
+                                    : const Duration(milliseconds: 200),
+                                width: 24,
+                                height: 24,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  gradient: isCompleted
+                                      ? (isToday
+                                            ? RpgColors.emeraldGradient
+                                            : LinearGradient(
+                                                begin: Alignment.topLeft,
+                                                end: Alignment.bottomRight,
+                                                colors: [
+                                                  RpgColors.questEmerald
+                                                      .withValues(
+                                                        alpha: isDark
+                                                            ? 0.75
+                                                            : 0.85,
+                                                      ),
+                                                  const Color(
+                                                    0xFF047857,
+                                                  ).withValues(
+                                                    alpha: isDark ? 0.75 : 0.85,
+                                                  ),
+                                                ],
+                                              ))
+                                      : null,
+                                  color: isCompleted
+                                      ? null
+                                      : (isDark
+                                            ? (isToday
+                                                  ? Colors.white10
+                                                  : Colors.white.withValues(
+                                                      alpha: 0.04,
+                                                    ))
+                                            : (isToday
+                                                  ? Colors.grey.shade100
+                                                  : Colors.grey.shade100)),
+                                  border: Border.all(
+                                    color: isToday
+                                        ? (isCompleted
+                                              ? RpgColors.questEmerald
+                                              : (isDark
+                                                    ? RpgColors.rpgGold
+                                                    : accentColor))
+                                        : (isCompleted
+                                              ? RpgColors.questEmerald
+                                                    .withValues(
+                                                      alpha: isDark
+                                                          ? 0.45
+                                                          : 0.55,
+                                                    )
+                                              : (isDark
+                                                    ? Colors.white12
+                                                    : Colors.grey.shade300)),
+                                    width: isToday ? 1.5 : 0.8,
+                                  ),
+                                  boxShadow: isCompleted
+                                      ? [
+                                          BoxShadow(
+                                            color: RpgColors.questEmerald
+                                                .withValues(
+                                                  alpha: isToday
+                                                      ? (isDark ? 0.22 : 0.14)
+                                                      : (isDark ? 0.10 : 0.07),
+                                                ),
+                                            blurRadius: isToday ? 3 : 2,
+                                          ),
+                                        ]
+                                      : null,
+                                ),
+                                child: Center(
+                                  child: isCompleted
+                                      ? Icon(
+                                          Icons.check_rounded,
+                                          size: 13,
+                                          color: isToday
+                                              ? Colors.white
+                                              : (isDark
+                                                    ? Colors.white70
+                                                    : Colors.white),
+                                        )
+                                      : (isToday
+                                            ? Container(
+                                                width: 5,
+                                                height: 5,
+                                                decoration: BoxDecoration(
+                                                  shape: BoxShape.circle,
+                                                  color: isDark
+                                                      ? RpgColors.rpgGold
+                                                      : accentColor,
+                                                ),
+                                              )
+                                            : Icon(
+                                                Icons.lock_outline_rounded,
+                                                size: 10,
+                                                color: isDark
+                                                    ? Colors.white24
+                                                    : Colors.grey.shade400,
+                                              )),
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+
+                        if (isToday) {
+                          return Expanded(
+                            child: Semantics(
+                              button: true,
+                              label:
+                                  '${day.label} (Today): ${isCompleted ? "Completed" : "Not completed"}',
+                              child: GestureDetector(
+                                behavior: HitTestBehavior.opaque,
+                                onTap: () {
+                                  _triggerRunicHaptic();
+                                  onToggleDate(day.dateStr);
+                                },
+                                child: dayIndicator,
+                              ),
                             ),
+                          );
+                        }
+
+                        // Historical and non-today days are strictly read-only
+                        return Expanded(
+                          child: Semantics(
+                            button: false,
+                            label:
+                                '${day.label}: ${isCompleted ? "Completed" : "Not completed"} (Read-only)',
+                            child: dayIndicator,
                           ),
                         );
                       }).toList(),
