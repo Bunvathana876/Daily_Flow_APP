@@ -119,12 +119,11 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
             children: [
               const Spacer(),
 
-              // Logo with animated scale and fade
-              FadeTransition(
-                opacity: _fadeAnimation,
-                child: ScaleTransition(
-                  scale: _scaleAnimation,
-                  child: Container(
+              // Logo with animated scale and fade (avoids Impeller inherited opacity on blur shadow)
+              AnimatedBuilder(
+                animation: _fadeAnimation,
+                builder: (context, child) {
+                  return Container(
                     width: 120,
                     height: 120,
                     decoration: BoxDecoration(
@@ -132,7 +131,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
                       boxShadow: [
                         BoxShadow(
                           color: theme.colorScheme.primary.withValues(
-                            alpha: 0.25,
+                            alpha: 0.25 * _fadeAnimation.value,
                           ),
                           blurRadius: 30,
                           offset: const Offset(0, 12),
@@ -140,10 +139,19 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
                         ),
                       ],
                     ),
+                    child: child,
+                  );
+                },
+                child: FadeTransition(
+                  opacity: _fadeAnimation,
+                  child: ScaleTransition(
+                    scale: _scaleAnimation,
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(30),
                       child: Image.asset(
                         'assets/icons/app_icon.png',
+                        width: 120,
+                        height: 120,
                         fit: BoxFit.cover,
                         errorBuilder: (context, error, stackTrace) {
                           // Fallback icon widget if asset is not loaded in tests

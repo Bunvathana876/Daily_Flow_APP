@@ -82,26 +82,32 @@ class DailyBountyCard extends StatelessWidget {
           color: isCleanSheet
               ? RpgColors.rpgGold.withValues(alpha: 0.85)
               : (isDark
-                    ? RpgColors.warmGold.withValues(alpha: 0.38)
-                    : Colors.white.withValues(alpha: 0.30)),
+                    ? RpgColors.warmGold.withValues(alpha: 0.28)
+                    : Colors.white.withValues(alpha: 0.25)),
           width: isCleanSheet ? 1.5 : 1.0,
         ),
-        boxShadow: [
-          BoxShadow(
-            color: isCleanSheet
-                ? RpgColors.rpgGold.withValues(alpha: isDark ? 0.28 : 0.20)
-                : const Color(
-                    0xFF3E266E,
-                  ).withValues(alpha: isDark ? 0.35 : 0.15),
-            blurRadius: 12,
-            offset: const Offset(0, 3),
-          ),
-          BoxShadow(
-            color: Colors.black.withValues(alpha: isDark ? 0.35 : 0.05),
-            blurRadius: 6,
-            offset: const Offset(0, 2),
-          ),
-        ],
+        boxShadow: isCleanSheet
+            ? [
+                BoxShadow(
+                  color: RpgColors.rpgGold.withValues(
+                    alpha: isDark ? 0.32 : 0.22,
+                  ),
+                  blurRadius: 14,
+                  offset: const Offset(0, 3),
+                ),
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: isDark ? 0.35 : 0.08),
+                  blurRadius: 6,
+                  offset: const Offset(0, 2),
+                ),
+              ]
+            : [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: isDark ? 0.24 : 0.06),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
+                ),
+              ],
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(16.0),
@@ -116,7 +122,9 @@ class DailyBountyCard extends StatelessWidget {
                 painter: _BountyCornerPainter(
                   color: isCleanSheet
                       ? RpgColors.rpgGold
-                      : (isDark ? RpgColors.warmGold : Colors.white70),
+                      : (isDark
+                            ? RpgColors.warmGold.withValues(alpha: 0.40)
+                            : Colors.white60),
                   isTop: true,
                   isLeft: true,
                 ),
@@ -130,14 +138,16 @@ class DailyBountyCard extends StatelessWidget {
                 painter: _BountyCornerPainter(
                   color: isCleanSheet
                       ? RpgColors.rpgGold
-                      : (isDark ? RpgColors.warmGold : Colors.white70),
+                      : (isDark
+                            ? RpgColors.warmGold.withValues(alpha: 0.40)
+                            : Colors.white60),
                   isTop: true,
                   isLeft: false,
                 ),
               ),
             ),
 
-            // Glowing Adventure Chest artwork positioned on the right
+            // Glowing Adventure Chest artwork positioned on the right (strong glow on completed bounty)
             Positioned(
               right: 8,
               top: 14,
@@ -145,17 +155,17 @@ class DailyBountyCard extends StatelessWidget {
                 child: Container(
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    boxShadow: [
-                      BoxShadow(
-                        color:
-                            (isCleanSheet
-                                    ? RpgColors.rpgGold
-                                    : RpgColors.warmGold)
-                                .withValues(alpha: isDark ? 0.25 : 0.15),
-                        blurRadius: 10,
-                        spreadRadius: 1,
-                      ),
-                    ],
+                    boxShadow: isCleanSheet
+                        ? [
+                            BoxShadow(
+                              color: RpgColors.rpgGold.withValues(
+                                alpha: isDark ? 0.35 : 0.22,
+                              ),
+                              blurRadius: 12,
+                              spreadRadius: 1,
+                            ),
+                          ]
+                        : null,
                   ),
                   child: const AdventureChestIcon(size: 42),
                 ),
@@ -441,7 +451,7 @@ class _BountyCornerPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = color.withValues(alpha: 0.50)
+      ..color = color.withValues(alpha: 0.35)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1.0
       ..strokeCap = StrokeCap.round;

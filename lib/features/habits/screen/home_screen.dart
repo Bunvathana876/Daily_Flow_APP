@@ -8,7 +8,6 @@ import '../../../core/widgets/cozy_background.dart';
 import '../../../core/widgets/cozy_button.dart';
 import '../../../core/widgets/rpg_celebration_banner.dart';
 import '../../../core/widgets/rpg_crest.dart';
-import '../../../core/widgets/rpg_runic_divider.dart';
 import '../../gamification/controllers/gamification_controller.dart';
 import '../controllers/habit_controller.dart';
 import '../models/habit.dart';
@@ -211,15 +210,15 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         ],
       ),
       body: ListView(
-        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 6.0),
         children: [
           // 1. Cozy Hero Dashboard HUD
           HeroXpHud(habits: habits),
-          const SizedBox(height: 12),
+          const SizedBox(height: 10),
 
           // 2. Daily Quest Bounty Card
           DailyBountyCard(habits: habits),
-          const SizedBox(height: 12),
+          const SizedBox(height: 10),
 
           // 3. Category Filter Chips with fantasy icons
           SizedBox(
@@ -282,7 +281,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               },
             ),
           ),
-          const SizedBox(height: 14),
+          const SizedBox(height: 10),
 
           // 4. Quests Section Header
           Row(
@@ -335,12 +334,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 ),
             ],
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 8),
 
           // 5. Quest List or Empty State
           if (displayedHabits.isEmpty)
             Padding(
-              padding: const EdgeInsets.symmetric(vertical: 28.0),
+              padding: const EdgeInsets.symmetric(vertical: 20.0),
               child: Container(
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
@@ -399,7 +398,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           else ...[
             ...displayedHabits.map((habit) {
               return Padding(
-                padding: const EdgeInsets.only(bottom: 10.0),
+                padding: const EdgeInsets.only(bottom: 8.0),
                 child: HabitTile(
                   habit: habit,
                   hapticsService: haptics,
@@ -446,52 +445,64 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               );
             }),
 
-            // 6. Adventure Journal Codex Inscription
-            const SizedBox(height: 6),
-            const RpgRunicDivider(height: 20),
-            const SizedBox(height: 6),
+            // 6. Adventure Journal Codex Inscription (refined compact card)
+            const SizedBox(height: 4),
             Center(
-              child: Padding(
+              child: Container(
+                width: double.infinity,
                 padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 8,
+                  horizontal: 14,
+                  vertical: 10,
+                ),
+                decoration: BoxDecoration(
+                  color: isDark
+                      ? const Color(0xFF13182E).withValues(alpha: 0.60)
+                      : const Color(0xFFF1F5F9).withValues(alpha: 0.85),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: isDark
+                        ? const Color(0xFF222B48)
+                        : const Color(0xFFE2E8F0),
+                    width: 0.8,
+                  ),
                 ),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Icon(
                       Icons.auto_stories_rounded,
-                      size: 20,
+                      size: 16,
                       color: isDark
-                          ? RpgColors.warmGold.withValues(alpha: 0.45)
-                          : RpgColors.arcaneViolet.withValues(alpha: 0.40),
+                          ? RpgColors.warmGold.withValues(alpha: 0.70)
+                          : RpgColors.arcaneViolet.withValues(alpha: 0.70),
                     ),
-                    const SizedBox(height: 6),
+                    const SizedBox(height: 4),
                     Text(
                       habits.every((h) => h.isCompletedToday)
                           ? 'All daily bounties claimed. Rest by the hearth, adventurer.'
                           : 'Small deeds inscribed daily become great legends.',
                       textAlign: TextAlign.center,
                       style: TextStyle(
-                        fontSize: 12,
+                        fontSize: 11.5,
                         fontStyle: FontStyle.italic,
                         fontWeight: FontWeight.w500,
                         color: isDark
                             ? Colors.grey.shade400
                             : Colors.grey.shade600,
-                        letterSpacing: 0.2,
+                        letterSpacing: 0.15,
                       ),
                     ),
                     const SizedBox(height: 4),
                     Text(
                       '✦ DAILYFLOW ADVENTURE CODEX ✦',
+                      textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: 9.5,
-                        fontWeight: FontWeight.w700,
-                        letterSpacing: 1.2,
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: 1.1,
                         color: isDark
-                            ? RpgColors.warmGold.withValues(alpha: 0.55)
-                            : RpgColors.rpgIndigo.withValues(alpha: 0.50),
+                            ? RpgColors.warmGold.withValues(alpha: 0.75)
+                            : RpgColors.rpgIndigo.withValues(alpha: 0.70),
                       ),
                     ),
                   ],
@@ -499,14 +510,15 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               ),
             ),
           ],
-          // Bottom padding so floating CTA button does not obscure content
-          const SizedBox(height: 84),
+          // Bottom clearance so floating CTA button does not obscure content
+          const SizedBox(height: 68),
         ],
       ),
       floatingActionButton: CozyButton.primary(
         label: 'New Quest',
         leadingIcon: Icons.add_rounded,
-        width: 145.0,
+        width: 142.0,
+        height: 44.0,
         onPressed: () => _showHabitDialog(context, ref),
       ),
     );

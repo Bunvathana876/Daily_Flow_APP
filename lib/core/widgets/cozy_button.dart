@@ -122,11 +122,19 @@ class CozyButton extends StatelessWidget {
         if (isEnabled) {
           bgGradient = RpgColors.cozyGoldGradient;
           textColor = customTextColor ?? const Color(0xFF2B1602);
+          borderColor = isDark
+              ? RpgColors.rpgGoldGlint.withValues(alpha: 0.35)
+              : RpgColors.warmGold.withValues(alpha: 0.45);
           shadows = [
             BoxShadow(
-              color: RpgColors.warmGold.withValues(alpha: isDark ? 0.28 : 0.20),
-              blurRadius: 12,
-              offset: const Offset(0, 3),
+              color: RpgColors.warmGold.withValues(alpha: isDark ? 0.20 : 0.14),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+            BoxShadow(
+              color: Colors.black.withValues(alpha: isDark ? 0.25 : 0.06),
+              blurRadius: 4,
+              offset: const Offset(0, 1),
             ),
           ];
         } else {
@@ -243,7 +251,7 @@ class CozyButton extends StatelessWidget {
                 : null,
             borderRadius: effectiveRadius,
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: RpgSpacing.lg),
+              padding: const EdgeInsets.symmetric(horizontal: 14.0),
               child: Center(child: content),
             ),
           ),

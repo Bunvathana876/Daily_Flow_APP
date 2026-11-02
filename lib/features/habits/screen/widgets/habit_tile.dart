@@ -102,16 +102,16 @@ class HabitTile extends StatelessWidget {
             ? Duration.zero
             : const Duration(milliseconds: 250),
         child: CozyCard(
-          borderRadius: BorderRadius.circular(18.0),
+          borderRadius: BorderRadius.circular(16.0),
           padding: EdgeInsets.zero,
-          hasGlow: isDone,
+          hasGlow: false,
           color: isDone
-              ? (isDark ? const Color(0xFF112520) : const Color(0xFFECFDF5))
-              : (isDark ? const Color(0xFF161C33) : Colors.white),
+              ? (isDark ? const Color(0xFF0F201C) : const Color(0xFFF0FDF4))
+              : (isDark ? const Color(0xFF151B33) : Colors.white),
           borderColor: isDone
-              ? RpgColors.questEmerald.withValues(alpha: isDark ? 0.70 : 0.50)
+              ? RpgColors.questEmerald.withValues(alpha: isDark ? 0.45 : 0.35)
               : (isDark
-                    ? accentColor.withValues(alpha: 0.28)
+                    ? accentColor.withValues(alpha: 0.22)
                     : RpgColors.rpgBorderLight),
           child: Stack(
             children: [
@@ -121,14 +121,14 @@ class HabitTile extends StatelessWidget {
                 bottom: 0,
                 left: 0,
                 child: Container(
-                  width: 3.5,
+                  width: 3.0,
                   decoration: BoxDecoration(
                     color: isDone ? RpgColors.questEmerald : accentColor,
                     boxShadow: [
                       BoxShadow(
                         color: (isDone ? RpgColors.questEmerald : accentColor)
-                            .withValues(alpha: 0.4),
-                        blurRadius: 4,
+                            .withValues(alpha: isDark ? 0.20 : 0.12),
+                        blurRadius: 2,
                       ),
                     ],
                   ),
@@ -143,8 +143,8 @@ class HabitTile extends StatelessWidget {
                   top: 8,
                   child: IgnorePointer(
                     child: Opacity(
-                      opacity: isDark ? 0.22 : 0.15,
-                      child: const QuestJournalIcon(size: 32),
+                      opacity: isDark ? 0.08 : 0.06,
+                      child: const QuestJournalIcon(size: 30),
                     ),
                   ),
                 ),
@@ -155,11 +155,11 @@ class HabitTile extends StatelessWidget {
                 children: [
                   // Main Interactive Area
                   InkWell(
-                    borderRadius: BorderRadius.circular(18.0),
+                    borderRadius: BorderRadius.circular(16.0),
                     onTap: onDetailTap,
                     onLongPress: onEdit,
                     child: Padding(
-                      padding: const EdgeInsets.fromLTRB(10, 10, 12, 8),
+                      padding: const EdgeInsets.fromLTRB(10, 9, 12, 6),
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
@@ -194,8 +194,8 @@ class HabitTile extends StatelessWidget {
                               children: [
                                 // Category Gemstone Badge + XP Reward Badge
                                 Wrap(
-                                  spacing: 6,
-                                  runSpacing: 3,
+                                  spacing: 5,
+                                  runSpacing: 2,
                                   crossAxisAlignment: WrapCrossAlignment.center,
                                   children: [
                                     // Category Gemstone Badge
@@ -209,31 +209,32 @@ class HabitTile extends StatelessWidget {
                                     // XP Reward Badge
                                     XpRewardBadge(
                                       xp: checkinXp,
-                                      isGlowing: isDone,
+                                      isGlowing: false,
                                     ),
                                   ],
                                 ),
-                                const SizedBox(height: 5),
+                                const SizedBox(height: 4),
 
-                                // Quest Title
+                                // Quest Title with enhanced visual emphasis
                                 Text(
                                   habit.title,
                                   style: TextStyle(
                                     fontWeight: FontWeight.w700,
-                                    fontSize: 15,
+                                    fontSize: 15.5,
+                                    letterSpacing: 0.1,
                                     decoration: isDone
                                         ? TextDecoration.lineThrough
                                         : null,
                                     decorationColor: isDark
                                         ? Colors.grey.shade500
-                                        : Colors.grey.shade600,
+                                        : Colors.grey.shade500,
                                     color: isDone
                                         ? (isDark
                                               ? Colors.grey.shade400
-                                              : Colors.grey.shade600)
+                                              : Colors.grey.shade500)
                                         : (isDark
                                               ? Colors.white
-                                              : Colors.black87),
+                                              : const Color(0xFF0F172A)),
                                   ),
                                   maxLines: 2,
                                   overflow: TextOverflow.ellipsis,
@@ -246,13 +247,13 @@ class HabitTile extends StatelessWidget {
                           // 3. Streak Indicator Pill
                           Container(
                             padding: const EdgeInsets.symmetric(
-                              horizontal: 7,
-                              vertical: 3.5,
+                              horizontal: 6.5,
+                              vertical: 3.0,
                             ),
                             decoration: BoxDecoration(
                               color: streak > 0
                                   ? Colors.deepOrange.withValues(
-                                      alpha: isDark ? 0.20 : 0.12,
+                                      alpha: isDark ? 0.18 : 0.10,
                                     )
                                   : (isDark
                                         ? Colors.white10
@@ -261,7 +262,7 @@ class HabitTile extends StatelessWidget {
                               border: Border.all(
                                 color: streak > 0
                                     ? Colors.deepOrange.withValues(
-                                        alpha: isDark ? 0.38 : 0.25,
+                                        alpha: isDark ? 0.32 : 0.20,
                                       )
                                     : (isDark
                                           ? Colors.white12
@@ -274,7 +275,7 @@ class HabitTile extends StatelessWidget {
                               children: [
                                 Icon(
                                   Icons.local_fire_department_rounded,
-                                  size: 14,
+                                  size: 13,
                                   color: streak > 0
                                       ? Colors.deepOrange
                                       : (isDark
@@ -285,7 +286,7 @@ class HabitTile extends StatelessWidget {
                                 Text(
                                   '$streak',
                                   style: TextStyle(
-                                    fontSize: 11,
+                                    fontSize: 10.5,
                                     fontWeight: FontWeight.w800,
                                     color: streak > 0
                                         ? Colors.deepOrange
@@ -385,10 +386,10 @@ class HabitTile extends StatelessWidget {
                                                   color: RpgColors.questEmerald
                                                       .withValues(
                                                         alpha: isDark
-                                                            ? 0.35
-                                                            : 0.2,
+                                                            ? 0.22
+                                                            : 0.14,
                                                       ),
-                                                  blurRadius: 4,
+                                                  blurRadius: 3,
                                                 ),
                                               ]
                                             : null,

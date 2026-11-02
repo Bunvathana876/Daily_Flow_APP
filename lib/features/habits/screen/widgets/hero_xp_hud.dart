@@ -50,9 +50,9 @@ class HeroXpHud extends ConsumerWidget {
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
                 colors: [
-                  Color(0xFF1E254F), // Twilight Indigo
-                  Color(0xFF151B38), // Midnight Slate
-                  Color(0xFF0D1226), // Deep Abyss
+                  Color(0xFF1B2245), // Softer Twilight Slate
+                  Color(0xFF141A35),
+                  Color(0xFF0F1428),
                 ],
               )
             : const LinearGradient(
@@ -60,30 +60,22 @@ class HeroXpHud extends ConsumerWidget {
                 end: Alignment.bottomRight,
                 colors: [
                   Color(0xFFFFFFFF),
-                  Color(0xFFF7F9FF),
-                  Color(0xFFEEF2FF),
+                  Color(0xFFF8FAFC),
+                  Color(0xFFF1F5F9),
                 ],
               ),
         borderRadius: BorderRadius.circular(16.0),
         border: Border.all(
           color: isDark
-              ? RpgColors.warmGold.withValues(alpha: 0.38)
-              : RpgColors.rpgIndigo.withValues(alpha: 0.22),
-          width: 1.2,
+              ? const Color(0xFF2E3967)
+              : RpgColors.rpgIndigo.withValues(alpha: 0.16),
+          width: 1.0,
         ),
         boxShadow: [
           BoxShadow(
-            color: isDark
-                ? RpgColors.mutedViolet.withValues(alpha: 0.25)
-                : RpgColors.rpgIndigo.withValues(alpha: 0.08),
-            blurRadius: 12,
-            spreadRadius: 1,
+            color: Colors.black.withValues(alpha: isDark ? 0.22 : 0.05),
+            blurRadius: 10,
             offset: const Offset(0, 3),
-          ),
-          BoxShadow(
-            color: Colors.black.withValues(alpha: isDark ? 0.38 : 0.05),
-            blurRadius: 6,
-            offset: const Offset(0, 2),
           ),
         ],
       ),
@@ -170,114 +162,74 @@ class HeroXpHud extends ConsumerWidget {
                         size: 56.0,
                         showFlourish: true,
                       ),
-                      const SizedBox(width: 10),
+                      const SizedBox(width: 12),
 
-                      // Player Name, Level, Rank & Compact XP Bar
+                      // Player Information Column:
+                      // 1. Avatar + Name + Level
+                      // 2. Rank Title
+                      // 3. Compact XP Bar
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            // Name row
+                            // 1. Name & Level Badge
                             Row(
+                              crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
                                 Flexible(
                                   child: Text(
                                     profile.heroName,
                                     style: TextStyle(
-                                      fontSize: 15.5,
+                                      fontSize: 16.0,
                                       fontWeight: FontWeight.w800,
                                       color: isDark
                                           ? Colors.white
-                                          : Colors.black87,
+                                          : const Color(0xFF1E293B),
                                       letterSpacing: 0.2,
                                     ),
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
                                   ),
                                 ),
-                                const SizedBox(width: 4),
-                                Icon(
-                                  Icons.edit_rounded,
-                                  size: 13,
-                                  color: isDark
-                                      ? RpgColors.warmGold.withValues(
-                                          alpha: 0.75,
-                                        )
-                                      : RpgColors.rpgIndigo.withValues(
-                                          alpha: 0.65,
-                                        ),
-                                ),
+                                const SizedBox(width: 8),
+                                LevelBadge(level: currentLevel, compact: true),
                               ],
                             ),
                             const SizedBox(height: 3),
 
-                            // Level Badge & RPG Rank Pill
+                            // 2. Rank Title
                             Row(
+                              mainAxisSize: MainAxisSize.min,
                               children: [
-                                LevelBadge(level: currentLevel, compact: true),
-                                const SizedBox(width: 6),
+                                Icon(
+                                  Icons.shield_rounded,
+                                  size: 11.5,
+                                  color: isDark
+                                      ? RpgColors.arcaneVioletLight
+                                      : RpgColors.arcaneViolet,
+                                ),
+                                const SizedBox(width: 4),
                                 Flexible(
-                                  child: Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 6,
-                                      vertical: 1.5,
-                                    ),
-                                    decoration: BoxDecoration(
+                                  child: Text(
+                                    rankTitle,
+                                    style: TextStyle(
+                                      fontSize: 11.0,
+                                      fontWeight: FontWeight.w600,
                                       color: isDark
-                                          ? RpgColors.arcaneViolet.withValues(
-                                              alpha: 0.22,
-                                            )
-                                          : RpgColors.arcaneViolet.withValues(
-                                              alpha: 0.12,
-                                            ),
-                                      borderRadius: BorderRadius.circular(8),
-                                      border: Border.all(
-                                        color: isDark
-                                            ? RpgColors.arcaneViolet.withValues(
-                                                alpha: 0.45,
-                                              )
-                                            : RpgColors.arcaneViolet.withValues(
-                                                alpha: 0.25,
-                                              ),
-                                        width: 0.8,
-                                      ),
+                                          ? const Color(0xFFCBD5E1)
+                                          : const Color(0xFF475569),
+                                      letterSpacing: 0.2,
                                     ),
-                                    child: Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        Icon(
-                                          Icons.military_tech_rounded,
-                                          size: 11,
-                                          color: isDark
-                                              ? RpgColors.arcaneVioletLight
-                                              : RpgColors.arcaneViolet,
-                                        ),
-                                        const SizedBox(width: 3),
-                                        Flexible(
-                                          child: Text(
-                                            rankTitle,
-                                            style: TextStyle(
-                                              fontSize: 10,
-                                              fontWeight: FontWeight.w700,
-                                              color: isDark
-                                                  ? RpgColors.arcaneVioletLight
-                                                  : RpgColors.arcaneViolet,
-                                              letterSpacing: 0.3,
-                                            ),
-                                            maxLines: 1,
-                                            overflow: TextOverflow.ellipsis,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
                                   ),
                                 ),
                               ],
                             ),
                             const SizedBox(height: 5),
 
-                            // Compact XP Bar
+                            // 3. Compact XP Bar
                             CompactXpBar(
                               currentXp: xpInLevel,
                               requiredXp: xpNeeded,
@@ -290,9 +242,9 @@ class HeroXpHud extends ConsumerWidget {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 10),
 
-                  // Row 2: 3 Compact KPI Stat Cards (Day Streak, Badges, Total XP)
+                  // 4. Compact stats row (Day Streak, Badges, Total XP)
                   Row(
                     children: [
                       // Card 1: Day Streak
@@ -300,12 +252,12 @@ class HeroXpHud extends ConsumerWidget {
                         child: Container(
                           padding: const EdgeInsets.symmetric(
                             horizontal: 4,
-                            vertical: 5,
+                            vertical: 5.5,
                           ),
                           decoration: BoxDecoration(
                             color: isDark
-                                ? const Color(0xFF131830)
-                                : const Color(0xFFF1F5F9),
+                                ? const Color(0xFF13182E)
+                                : const Color(0xFFF8FAFC),
                             borderRadius: BorderRadius.circular(10),
                             border: Border.all(
                               color: isDark
@@ -313,7 +265,7 @@ class HeroXpHud extends ConsumerWidget {
                                         ? Colors.deepOrange.withValues(
                                             alpha: 0.35,
                                           )
-                                        : const Color(0xFF242E50))
+                                        : const Color(0xFF222B48))
                                   : (bestStreak > 0
                                         ? Colors.deepOrange.withValues(
                                             alpha: 0.25,
@@ -357,23 +309,23 @@ class HeroXpHud extends ConsumerWidget {
                           ),
                         ),
                       ),
-                      const SizedBox(width: 5),
+                      const SizedBox(width: 6),
 
                       // Card 2: Badges
                       Expanded(
                         child: Container(
                           padding: const EdgeInsets.symmetric(
                             horizontal: 4,
-                            vertical: 5,
+                            vertical: 5.5,
                           ),
                           decoration: BoxDecoration(
                             color: isDark
-                                ? const Color(0xFF131830)
-                                : const Color(0xFFF1F5F9),
+                                ? const Color(0xFF13182E)
+                                : const Color(0xFFF8FAFC),
                             borderRadius: BorderRadius.circular(10),
                             border: Border.all(
                               color: isDark
-                                  ? const Color(0xFF242E50)
+                                  ? const Color(0xFF222B48)
                                   : const Color(0xFFE2E8F0),
                               width: 0.8,
                             ),
@@ -405,23 +357,23 @@ class HeroXpHud extends ConsumerWidget {
                           ),
                         ),
                       ),
-                      const SizedBox(width: 5),
+                      const SizedBox(width: 6),
 
                       // Card 3: Total XP
                       Expanded(
                         child: Container(
                           padding: const EdgeInsets.symmetric(
                             horizontal: 4,
-                            vertical: 5,
+                            vertical: 5.5,
                           ),
                           decoration: BoxDecoration(
                             color: isDark
-                                ? const Color(0xFF131830)
-                                : const Color(0xFFF1F5F9),
+                                ? const Color(0xFF13182E)
+                                : const Color(0xFFF8FAFC),
                             borderRadius: BorderRadius.circular(10),
                             border: Border.all(
                               color: isDark
-                                  ? const Color(0xFF242E50)
+                                  ? const Color(0xFF222B48)
                                   : const Color(0xFFE2E8F0),
                               width: 0.8,
                             ),
@@ -482,17 +434,17 @@ class _HeroAtmosphereScenePainter extends CustomPainter {
     final w = size.width;
     final h = size.height;
 
-    // 1. Soft Arcane Celestial Aura behind the Avatar frame
+    // 1. Soft Arcane Celestial Aura behind the Avatar frame (subtle portrait halo)
     final auraCenter = const Offset(38, 38);
     final auraPaint = Paint()
       ..shader = RadialGradient(
         colors: [
-          primaryColor.withValues(alpha: isDark ? 0.28 : 0.12),
+          primaryColor.withValues(alpha: isDark ? 0.16 : 0.06),
           Colors.transparent,
         ],
         stops: const [0.0, 1.0],
-      ).createShader(Rect.fromCircle(center: auraCenter, radius: 68));
-    canvas.drawCircle(auraCenter, 68, auraPaint);
+      ).createShader(Rect.fromCircle(center: auraCenter, radius: 64));
+    canvas.drawCircle(auraCenter, 64, auraPaint);
 
     // 2. Starfield & Arcane Dust in dark mode
     if (isDark) {
@@ -510,8 +462,8 @@ class _HeroAtmosphereScenePainter extends CustomPainter {
 
       for (int i = 0; i < stars.length; i++) {
         final pos = stars[i];
-        final radius = (i % 3 == 0) ? 1.3 : 0.85;
-        final alpha = (i % 2 == 0) ? 0.70 : 0.45;
+        final radius = (i % 3 == 0) ? 1.1 : 0.75;
+        final alpha = (i % 2 == 0) ? 0.42 : 0.24;
         starPaint.color = (i % 4 == 0 ? accentColor : Colors.white).withValues(
           alpha: alpha,
         );
@@ -523,7 +475,7 @@ class _HeroAtmosphereScenePainter extends CustomPainter {
     final mountainPaint = Paint()
       ..style = PaintingStyle.fill
       ..color = (isDark ? const Color(0xFF1B2348) : const Color(0xFFDCE4F7))
-          .withValues(alpha: isDark ? 0.32 : 0.40);
+          .withValues(alpha: isDark ? 0.18 : 0.22);
 
     final path1 = Path();
     path1.moveTo(w * 0.42, h);
@@ -538,7 +490,7 @@ class _HeroAtmosphereScenePainter extends CustomPainter {
     final ridgePaint = Paint()
       ..style = PaintingStyle.fill
       ..color = (isDark ? const Color(0xFF131830) : const Color(0xFFEDF2FD))
-          .withValues(alpha: isDark ? 0.52 : 0.60);
+          .withValues(alpha: isDark ? 0.28 : 0.32);
 
     final path2 = Path();
     path2.moveTo(w * 0.52, h);
@@ -573,9 +525,9 @@ class _HeroCornerPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = color.withValues(alpha: 0.55)
+      ..color = color.withValues(alpha: 0.28)
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.2
+      ..strokeWidth = 1.0
       ..strokeCap = StrokeCap.round;
 
     final w = size.width;
@@ -584,8 +536,8 @@ class _HeroCornerPainter extends CustomPainter {
 
     final cornerX = isLeft ? 3.0 : w - 3.0;
     final cornerY = isTop ? 3.0 : h - 3.0;
-    final lineEndX = isLeft ? 10.0 : w - 10.0;
-    final lineEndY = isTop ? 10.0 : h - 10.0;
+    final lineEndX = isLeft ? 9.0 : w - 9.0;
+    final lineEndY = isTop ? 9.0 : h - 9.0;
 
     path.moveTo(cornerX, lineEndY);
     path.lineTo(cornerX, cornerY);
@@ -595,9 +547,9 @@ class _HeroCornerPainter extends CustomPainter {
 
     // Miniature diamond point
     final pipPaint = Paint()
-      ..color = color.withValues(alpha: 0.75)
+      ..color = color.withValues(alpha: 0.40)
       ..style = PaintingStyle.fill;
-    canvas.drawCircle(Offset(cornerX, cornerY), 1.0, pipPaint);
+    canvas.drawCircle(Offset(cornerX, cornerY), 0.9, pipPaint);
   }
 
   @override
