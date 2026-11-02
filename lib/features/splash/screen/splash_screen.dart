@@ -1,16 +1,22 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../core/theme/rpg_colors.dart';
+import '../../gamification/controllers/gamification_controller.dart';
 import '../../habits/controllers/habit_controller.dart';
 import '../../navigation/screen/main_shell.dart';
 
+/// Cozy Adventure Animated Startup Splash Screen for DailyFlow 3.0.
+///
+/// Seamlessly transitions from the native OS launch screen (#0B1224) into a
+/// warm, magical welcome experience featuring the DailyFlow adventurer icon,
+/// soft violet ambient radiance, and golden progress indicator while
+/// loading essential application state.
 class SplashScreen extends ConsumerStatefulWidget {
-  final Duration minDuration;
+  final Duration? minDuration;
 
-  const SplashScreen({
-    super.key,
-    this.minDuration = const Duration(milliseconds: 1600),
-  });
+  const SplashScreen({super.key, this.minDuration});
 
   @override
   ConsumerState<SplashScreen> createState() => _SplashScreenState();
@@ -22,6 +28,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
   late final Animation<double> _fadeAnimation;
   late final Animation<double> _scaleAnimation;
   Timer? _navigationTimer;
+  bool _navigated = false;
 
   @override
   void initState() {
@@ -29,34 +36,62 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
 
     _animController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 900),
+      duration: const Duration(milliseconds: 750),
     );
 
     _fadeAnimation = CurvedAnimation(
       parent: _animController,
-      curve: Curves.easeIn,
+      curve: Curves.easeOutCubic,
     );
 
-    _scaleAnimation = Tween<double>(begin: 0.85, end: 1.0).animate(
+    _scaleAnimation = Tween<double>(begin: 0.90, end: 1.0).animate(
       CurvedAnimation(parent: _animController, curve: Curves.easeOutBack),
     );
 
+    // Remove the native splash screen immediately when Flutter draws this frame
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      FlutterNativeSplash.remove();
+    });
+
     _animController.forward();
-    _initializeApp();
+    _startInitialization();
   }
 
-  Future<void> _initializeApp() async {
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Respect system reduced motion preferences
+    final reduceMotion =
+        MediaQuery.maybeOf(context)?.disableAnimations ?? false;
+    if (reduceMotion && _animController.value < 1.0) {
+      _animController.value = 1.0;
+    }
+  }
+
+  Future<void> _startInitialization() async {
     final stopwatch = Stopwatch()..start();
 
-    // Load initial habit data
+    // Load initial habit and gamification data concurrently
     try {
-      await ref.read(habitControllerProvider.notifier).loadHabits();
+      await Future.wait([
+        ref.read(habitControllerProvider.notifier).loadHabits(),
+        ref
+            .read(gamificationControllerProvider.notifier)
+            .loadGamificationData(),
+      ]);
     } catch (_) {
-      // Gracefully continue even if database initial load takes time
+      // Gracefully continue even if database initial load takes time or fails
     }
 
     final elapsed = stopwatch.elapsed;
-    final remaining = widget.minDuration - elapsed;
+    final reduceMotion =
+        mounted && (MediaQuery.maybeOf(context)?.disableAnimations ?? false);
+
+    // Default transition duration allows gentle entrance animation without artificial lag
+    final targetDuration =
+        widget.minDuration ??
+        (reduceMotion ? Duration.zero : const Duration(milliseconds: 650));
+    final remaining = targetDuration - elapsed;
 
     if (remaining > Duration.zero) {
       _navigationTimer = Timer(remaining, _navigateToMain);
@@ -66,10 +101,12 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
   }
 
   void _navigateToMain() {
-    if (!mounted) return;
+    if (!mounted || _navigated) return;
+    _navigated = true;
+
     Navigator.of(context).pushReplacement(
       PageRouteBuilder(
-        transitionDuration: const Duration(milliseconds: 400),
+        transitionDuration: const Duration(milliseconds: 450),
         pageBuilder: (context, animation, secondaryAnimation) =>
             const MainShell(),
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
@@ -88,116 +125,192 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
+    final reduceMotion =
+        MediaQuery.maybeOf(context)?.disableAnimations ?? false;
 
     return Scaffold(
+      backgroundColor: RpgColors.midnightNavy,
       body: Container(
         width: double.infinity,
         height: double.infinity,
-        decoration: BoxDecoration(
-          color: theme.scaffoldBackgroundColor,
-          gradient: LinearGradient(
-            colors: isDark
-                ? [
-                    const Color(0xFF0F172A),
-                    const Color(0xFF1E1B4B),
-                    const Color(0xFF0F172A),
-                  ]
-                : [
-                    const Color(0xFFF8FAFC),
-                    const Color(0xFFEEF2FF),
-                    const Color(0xFFF8FAFC),
-                  ],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
+        decoration: const BoxDecoration(
+          color: RpgColors.midnightNavy,
+          gradient: RadialGradient(
+            center: Alignment(0.0, -0.15),
+            radius: 1.1,
+            colors: [
+              Color(0xFF141A38), // Soft indigo core
+              RpgColors.midnightNavy, // #0B1224 deep midnight canvas
+            ],
           ),
         ),
         child: SafeArea(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Spacer(),
+              const Spacer(flex: 3),
 
-              // Logo with animated scale and fade (avoids Impeller inherited opacity on blur shadow)
+              // Centered DailyFlow Adventurer Icon with Ambient Lighting
               AnimatedBuilder(
                 animation: _fadeAnimation,
                 builder: (context, child) {
-                  return Container(
-                    width: 120,
-                    height: 120,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(30),
-                      boxShadow: [
-                        BoxShadow(
-                          color: theme.colorScheme.primary.withValues(
-                            alpha: 0.25 * _fadeAnimation.value,
-                          ),
-                          blurRadius: 30,
-                          offset: const Offset(0, 12),
-                          spreadRadius: 2,
+                  final animVal = reduceMotion ? 1.0 : _fadeAnimation.value;
+                  return Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      // Soft Violet Ambient Lighting Halo (separate layer avoids Impeller opacity issues)
+                      Container(
+                        width: 140,
+                        height: 140,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                              color: const Color(
+                                0xFF8B5CF6,
+                              ).withValues(alpha: 0.22 * animVal),
+                              blurRadius: 40,
+                              spreadRadius: 8,
+                            ),
+                            BoxShadow(
+                              color: RpgColors.warmGold.withValues(
+                                alpha: 0.12 * animVal,
+                              ),
+                              blurRadius: 20,
+                              spreadRadius: 2,
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
-                    child: child,
-                  );
-                },
-                child: FadeTransition(
-                  opacity: _fadeAnimation,
-                  child: ScaleTransition(
-                    scale: _scaleAnimation,
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(30),
-                      child: Image.asset(
-                        'assets/icons/app_icon.png',
-                        width: 120,
-                        height: 120,
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) {
-                          // Fallback icon widget if asset is not loaded in tests
-                          return Container(
-                            color: theme.colorScheme.primary,
-                            child: const Center(
-                              child: Icon(
-                                Icons.water_drop_rounded,
-                                color: Colors.white,
-                                size: 64,
+                      ),
+
+                      // Main Hero App Icon
+                      Transform.scale(
+                        scale: reduceMotion ? 1.0 : _scaleAnimation.value,
+                        child: Opacity(
+                          opacity: animVal,
+                          child: Container(
+                            width: 112,
+                            height: 112,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(26),
+                              border: Border.all(
+                                color: RpgColors.warmGold.withValues(
+                                  alpha: 0.35,
+                                ),
+                                width: 1.2,
+                              ),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withValues(
+                                    alpha: 0.45 * animVal,
+                                  ),
+                                  blurRadius: 18,
+                                  offset: const Offset(0, 8),
+                                ),
+                              ],
+                            ),
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(24),
+                              child: Image.asset(
+                                'assets/icons/dailyflow_app_icon.png',
+                                width: 112,
+                                height: 112,
+                                fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) {
+                                  // Fallback shield crest if asset is not loaded in unit tests
+                                  return Container(
+                                    color: const Color(0xFF19246E),
+                                    child: const Center(
+                                      child: Icon(
+                                        Icons.shield_rounded,
+                                        color: RpgColors.warmGold,
+                                        size: 54,
+                                      ),
+                                    ),
+                                  );
+                                },
                               ),
                             ),
-                          );
-                        },
+                          ),
+                        ),
                       ),
-                    ),
-                  ),
-                ),
+                    ],
+                  );
+                },
               ),
 
               const SizedBox(height: 28),
 
-              // Title
-              FadeTransition(
-                opacity: _fadeAnimation,
+              // Title & Tagline
+              AnimatedBuilder(
+                animation: _fadeAnimation,
+                builder: (context, child) {
+                  final animVal = reduceMotion ? 1.0 : _fadeAnimation.value;
+                  return Opacity(opacity: animVal, child: child);
+                },
                 child: Column(
                   children: [
-                    Text(
+                    const Text(
                       'DailyFlow',
                       style: TextStyle(
                         fontSize: 32,
                         fontWeight: FontWeight.w900,
                         letterSpacing: -0.5,
-                        color: theme.colorScheme.primary,
+                        color: Color(0xFFFBF8EE), // Warm ivory text
                       ),
                     ),
                     const SizedBox(height: 8),
-                    Text(
-                      'Build consistency, one day at a time',
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          'Level Up Your Daily Life ✨',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: RpgColors.warmGold.withValues(alpha: 0.90),
+                            letterSpacing: 0.3,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+
+              const Spacer(flex: 3),
+
+              // Small Gold Loading Progress Indicator & Adventure Message
+              AnimatedBuilder(
+                animation: _fadeAnimation,
+                builder: (context, child) {
+                  final animVal = reduceMotion ? 1.0 : _fadeAnimation.value;
+                  return Opacity(opacity: animVal, child: child);
+                },
+                child: Column(
+                  children: [
+                    SizedBox(
+                      width: 24,
+                      height: 24,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2.4,
+                        valueColor: const AlwaysStoppedAnimation<Color>(
+                          RpgColors.warmGold,
+                        ),
+                        backgroundColor: RpgColors.warmGold.withValues(
+                          alpha: 0.15,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 14),
+                    const Text(
+                      'Preparing your adventure...',
                       style: TextStyle(
-                        fontSize: 14,
+                        fontSize: 12,
                         fontWeight: FontWeight.w500,
-                        color: isDark
-                            ? Colors.grey.shade400
-                            : Colors.grey.shade600,
-                        letterSpacing: 0.2,
+                        color: Color(0xFF94A3B8),
+                        letterSpacing: 0.4,
                       ),
                     ),
                   ],
@@ -205,39 +318,6 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
               ),
 
               const Spacer(),
-
-              // Elegant Loading Progress Indicator
-              FadeTransition(
-                opacity: _fadeAnimation,
-                child: Column(
-                  children: [
-                    SizedBox(
-                      width: 36,
-                      height: 36,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 3,
-                        valueColor: AlwaysStoppedAnimation<Color>(
-                          theme.colorScheme.primary,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      'Preparing your daily flow...',
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w500,
-                        color: isDark
-                            ? Colors.grey.shade500
-                            : Colors.grey.shade500,
-                        letterSpacing: 0.3,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-
-              const SizedBox(height: 40),
             ],
           ),
         ),

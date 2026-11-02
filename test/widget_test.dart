@@ -353,8 +353,8 @@ void main() {
       // Verify SplashScreen is rendered on app launch
       expect(find.byType(SplashScreen), findsOneWidget);
       expect(find.text('DailyFlow'), findsOneWidget);
-      expect(find.text('Build consistency, one day at a time'), findsOneWidget);
-      expect(find.text('Preparing your daily flow...'), findsOneWidget);
+      expect(find.text('Level Up Your Daily Life ✨'), findsOneWidget);
+      expect(find.text('Preparing your adventure...'), findsOneWidget);
 
       // Fast forward animation and duration
       await tester.pump(const Duration(milliseconds: 900));
