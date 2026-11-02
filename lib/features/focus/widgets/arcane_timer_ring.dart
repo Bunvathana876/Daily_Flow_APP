@@ -4,8 +4,9 @@ import '../../../../core/theme/rpg_colors.dart';
 import '../../../../core/theme/rpg_spacing.dart';
 import '../controllers/focus_timer_controller.dart';
 
-/// Glowing Arcane Countdown Ring displaying double-ring circular progress,
-/// decorative rune markers, glowing progress stroke, countdown timer,
+/// Cozy Adventure RPG Arcane Countdown Ring.
+/// Features a large circular countdown, soft violet progress ring,
+/// warm gold progress markers, clear digital time display,
 /// and actual XP reward preview.
 class ArcaneTimerRing extends StatelessWidget {
   final Duration remainingDuration;
@@ -44,37 +45,64 @@ class ArcaneTimerRing extends StatelessWidget {
         MediaQuery.maybeDisableAnimationsOf(context) ?? false;
     final clampedRatio = progressRatio.clamp(0.0, 1.0);
 
-    final glowColor = mode == FocusMode.focus
-        ? activeColor
+    final modeColor = mode == FocusMode.focus
+        ? (activeColor != Theme.of(context).colorScheme.primary
+              ? activeColor
+              : RpgColors.arcaneViolet)
         : (mode == FocusMode.shortBreak
               ? RpgColors.questEmerald
               : RpgColors.rpgCyan);
 
     return Center(
       child: SizedBox(
-        width: 250,
-        height: 250,
+        width: 256,
+        height: 256,
         child: Stack(
           alignment: Alignment.center,
           children: [
-            // Outer Ambient Arcane Glow when running
+            // Ambient Atmosphere Glow (Soft, non-distracting)
             if (isRunning && !disableAnimations)
               Container(
-                width: 246,
-                height: 246,
+                width: 230,
+                height: 230,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   boxShadow: [
                     BoxShadow(
-                      color: glowColor.withValues(alpha: isDark ? 0.30 : 0.18),
-                      blurRadius: 32,
-                      spreadRadius: 2,
+                      color: modeColor.withValues(alpha: isDark ? 0.20 : 0.12),
+                      blurRadius: 28,
+                      spreadRadius: 1,
                     ),
                   ],
                 ),
               ),
 
-            // Custom Painted Arcane Double-Ring with Rune / Gemstone Markers
+            // Concentric Inner Soft Disc for Readability over Background Artwork
+            Container(
+              width: 200,
+              height: 200,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: RadialGradient(
+                  colors: [
+                    (isDark ? RpgColors.midnightNavy : Colors.white).withValues(
+                      alpha: isDark ? 0.72 : 0.85,
+                    ),
+                    (isDark ? RpgColors.softIndigo : Colors.white).withValues(
+                      alpha: isDark ? 0.40 : 0.50,
+                    ),
+                  ],
+                ),
+                border: Border.all(
+                  color: isDark
+                      ? RpgColors.warmGold.withValues(alpha: 0.18)
+                      : RpgColors.rpgBorderLight,
+                  width: 1.0,
+                ),
+              ),
+            ),
+
+            // Custom Painted Arcane Double-Ring with Warm Gold Markers & Fleur-de-lis
             TweenAnimationBuilder<double>(
               tween: Tween<double>(begin: clampedRatio, end: clampedRatio),
               duration: disableAnimations
@@ -83,35 +111,21 @@ class ArcaneTimerRing extends StatelessWidget {
               curve: Curves.easeOutCubic,
               builder: (context, animatedRatio, _) {
                 return CustomPaint(
-                  size: const Size(250, 250),
-                  painter: _ArcaneRingPainter(
+                  size: const Size(256, 256),
+                  painter: _CozyArcaneRingPainter(
                     progressRatio: animatedRatio,
-                    activeColor: glowColor,
+                    activeColor: modeColor,
                     isDark: isDark,
                     isRunning: isRunning,
+                    isFocusMode: mode == FocusMode.focus,
                   ),
                 );
               },
             ),
 
-            // Inner Ring Concentric Accent Frame
-            Container(
-              width: 196,
-              height: 196,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                border: Border.all(
-                  color: isDark
-                      ? Colors.white.withValues(alpha: 0.08)
-                      : Colors.black.withValues(alpha: 0.05),
-                  width: 1.2,
-                ),
-              ),
-            ),
-
             // Center Display Content
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 18),
+              padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -121,27 +135,28 @@ class ArcaneTimerRing extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 44,
                       fontWeight: FontWeight.w900,
-                      letterSpacing: 2.0,
-                      color: isDark ? Colors.white : Colors.black87,
+                      letterSpacing: 1.5,
+                      color: isDark ? Colors.white : const Color(0xFF1A1F36),
                     ),
                   ),
                   const SizedBox(height: 6),
 
                   // Mode / Channeling Status Pill
                   if (mode == FocusMode.focus) ...[
+                    // XP Channel Preview Pill
                     Container(
                       padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
+                        horizontal: 9,
                         vertical: 3.5,
                       ),
                       decoration: BoxDecoration(
-                        color: glowColor.withValues(
-                          alpha: isDark ? 0.18 : 0.12,
+                        color: RpgColors.warmGold.withValues(
+                          alpha: isDark ? 0.16 : 0.12,
                         ),
                         borderRadius: RpgSpacing.roundedPill,
                         border: Border.all(
-                          color: glowColor.withValues(
-                            alpha: isDark ? 0.40 : 0.25,
+                          color: RpgColors.warmGold.withValues(
+                            alpha: isDark ? 0.45 : 0.35,
                           ),
                           width: 0.8,
                         ),
@@ -149,25 +164,25 @@ class ArcaneTimerRing extends StatelessWidget {
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(
+                          const Icon(
                             Icons.auto_awesome_rounded,
                             size: 11,
-                            color: glowColor,
+                            color: RpgColors.warmGold,
                           ),
                           const SizedBox(width: 4),
                           Text(
                             '+$presetMinutes XP Channel',
-                            style: TextStyle(
-                              fontSize: 10,
+                            style: const TextStyle(
+                              fontSize: 10.5,
                               fontWeight: FontWeight.w800,
-                              color: glowColor,
+                              color: RpgColors.warmGold,
                               letterSpacing: 0.4,
                             ),
                           ),
                         ],
                       ),
                     ),
-                    const SizedBox(height: 6),
+                    const SizedBox(height: 5),
                     Text(
                       habitTitle != null
                           ? (isRunning
@@ -180,26 +195,27 @@ class ArcaneTimerRing extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                       textAlign: TextAlign.center,
                       style: TextStyle(
-                        fontSize: 11.5,
-                        fontWeight: FontWeight.w600,
+                        fontSize: 11,
+                        fontWeight: FontWeight.w500,
                         color: isDark
                             ? Colors.grey.shade400
                             : Colors.grey.shade600,
                       ),
                     ),
                   ] else ...[
+                    // Rest Mode Status
                     Container(
                       padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
+                        horizontal: 9,
                         vertical: 3.5,
                       ),
                       decoration: BoxDecoration(
-                        color: glowColor.withValues(
-                          alpha: isDark ? 0.18 : 0.12,
+                        color: modeColor.withValues(
+                          alpha: isDark ? 0.16 : 0.12,
                         ),
                         borderRadius: RpgSpacing.roundedPill,
                         border: Border.all(
-                          color: glowColor.withValues(
+                          color: modeColor.withValues(
                             alpha: isDark ? 0.40 : 0.25,
                           ),
                           width: 0.8,
@@ -208,23 +224,23 @@ class ArcaneTimerRing extends StatelessWidget {
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(Icons.spa_rounded, size: 11, color: glowColor),
+                          Icon(Icons.spa_rounded, size: 11, color: modeColor),
                           const SizedBox(width: 4),
                           Text(
                             mode == FocusMode.shortBreak
                                 ? 'Short Rest'
                                 : 'Deep Rest',
                             style: TextStyle(
-                              fontSize: 10,
+                              fontSize: 10.5,
                               fontWeight: FontWeight.w800,
-                              color: glowColor,
+                              color: modeColor,
                               letterSpacing: 0.4,
                             ),
                           ),
                         ],
                       ),
                     ),
-                    const SizedBox(height: 4),
+                    const SizedBox(height: 5),
                     Text(
                       'Restoring mana & focus...',
                       style: TextStyle(
@@ -246,34 +262,46 @@ class ArcaneTimerRing extends StatelessWidget {
   }
 }
 
-/// Custom painter for the double-ring arcane progress ring and celestial rune ticks
-class _ArcaneRingPainter extends CustomPainter {
+/// Custom painter for the Cozy Adventure RPG Arcane Timer Ring
+class _CozyArcaneRingPainter extends CustomPainter {
   final double progressRatio;
   final Color activeColor;
   final bool isDark;
   final bool isRunning;
+  final bool isFocusMode;
 
-  _ArcaneRingPainter({
+  _CozyArcaneRingPainter({
     required this.progressRatio,
     required this.activeColor,
     required this.isDark,
     required this.isRunning,
+    required this.isFocusMode,
   });
 
   @override
   void paint(Canvas canvas, Size size) {
     final center = Offset(size.width / 2, size.height / 2);
-    final outerRadius = size.width / 2 - 12;
-    const strokeWidth = 10.0;
+    final outerRadius = size.width / 2 - 14;
+    const strokeWidth = 9.0;
 
-    // 1. Background Track Ring
+    // 1. Concentric Outer Accent Ring
+    final outerAccentPaint = Paint()
+      ..color = (isDark ? RpgColors.warmGold : RpgColors.arcaneViolet)
+          .withValues(alpha: isDark ? 0.22 : 0.15)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.0;
+    canvas.drawCircle(center, outerRadius + 6, outerAccentPaint);
+
+    // 2. Background Track Ring (Soft Violet / Indigo)
     final trackPaint = Paint()
-      ..color = isDark ? const Color(0xFF192033) : Colors.grey.shade200
+      ..color = isDark
+          ? const Color(0xFF1E2447).withValues(alpha: 0.85)
+          : const Color(0xFFE8E5F4)
       ..style = PaintingStyle.stroke
       ..strokeWidth = strokeWidth;
     canvas.drawCircle(center, outerRadius, trackPaint);
 
-    // 2. Active Progress Arc
+    // 3. Active Progress Arc
     if (progressRatio > 0.0) {
       final sweepAngle = 2 * math.pi * progressRatio;
       const startAngle = -math.pi / 2;
@@ -292,21 +320,31 @@ class _ArcaneRingPainter extends CustomPainter {
         progressPaint,
       );
 
-      // Glowing head marker
+      // Glowing Head Bead on Progress Edge
       if (isRunning) {
         final headAngle = startAngle + sweepAngle;
         final headOffset = Offset(
           center.dx + outerRadius * math.cos(headAngle),
           center.dy + outerRadius * math.sin(headAngle),
         );
-        final glowHeadPaint = Paint()
+
+        // Soft outer glow halo
+        final haloPaint = Paint()
+          ..color = (isFocusMode ? RpgColors.warmGold : activeColor).withValues(
+            alpha: 0.40,
+          )
+          ..style = PaintingStyle.fill;
+        canvas.drawCircle(headOffset, strokeWidth * 0.75, haloPaint);
+
+        // Bright white/golden inner pip
+        final headPipPaint = Paint()
           ..color = Colors.white
           ..style = PaintingStyle.fill;
-        canvas.drawCircle(headOffset, strokeWidth / 2.8, glowHeadPaint);
+        canvas.drawCircle(headOffset, strokeWidth * 0.35, headPipPaint);
       }
     }
 
-    // 3. 12 Cardinal and Celestial Rune / Gemstone Markers
+    // 4. 12 Warm Gold Progress & Rune Markers
     const int totalMarkers = 12;
     for (int i = 0; i < totalMarkers; i++) {
       final angle = -math.pi / 2 + (2 * math.pi * (i / totalMarkers));
@@ -320,35 +358,98 @@ class _ArcaneRingPainter extends CustomPainter {
       final markerProgress = i / totalMarkers;
       final isActivated = progressRatio >= markerProgress;
 
+      final markerColor = isActivated
+          ? (isDark ? RpgColors.rpgGoldBright : RpgColors.warmGold)
+          : (isDark
+                ? RpgColors.warmGold.withValues(alpha: 0.30)
+                : Colors.grey.shade400);
+
       final markerPaint = Paint()
-        ..color = isActivated
-            ? Colors.white.withValues(alpha: 0.9)
-            : (isDark
-                  ? Colors.white.withValues(alpha: 0.20)
-                  : Colors.grey.shade400)
+        ..color = markerColor
         ..style = PaintingStyle.fill;
 
-      if (isCardinal) {
-        // Diamond rune pip
+      if (i == 0) {
+        // 12 o'clock Crown / Golden Fleur Motif
+        _drawFleurDeLis(canvas, markerOffset, markerColor);
+      } else if (isCardinal) {
+        // 3, 6, 9 o'clock: Crisp Diamond Rune Pip
         final pipPath = Path()
-          ..moveTo(markerOffset.dx, markerOffset.dy - 3.5)
-          ..lineTo(markerOffset.dx + 3.5, markerOffset.dy)
-          ..lineTo(markerOffset.dx, markerOffset.dy + 3.5)
-          ..lineTo(markerOffset.dx - 3.5, markerOffset.dy)
+          ..moveTo(markerOffset.dx, markerOffset.dy - 3.2)
+          ..lineTo(markerOffset.dx + 3.2, markerOffset.dy)
+          ..lineTo(markerOffset.dx, markerOffset.dy + 3.2)
+          ..lineTo(markerOffset.dx - 3.2, markerOffset.dy)
           ..close();
         canvas.drawPath(pipPath, markerPaint);
       } else {
-        // Small circle tick
+        // Small Circular Bead Tick
         canvas.drawCircle(markerOffset, 1.8, markerPaint);
       }
     }
   }
 
+  /// Draws a delicate golden triple-leaf / fleur-de-lis ornament at the 12 o'clock apex
+  void _drawFleurDeLis(Canvas canvas, Offset offset, Color color) {
+    final paint = Paint()
+      ..color = color
+      ..style = PaintingStyle.fill;
+
+    // Center leaf
+    final centerLeaf = Path()
+      ..moveTo(offset.dx, offset.dy - 5.5)
+      ..cubicTo(
+        offset.dx + 2.0,
+        offset.dy - 3.0,
+        offset.dx + 1.8,
+        offset.dy,
+        offset.dx,
+        offset.dy + 1.5,
+      )
+      ..cubicTo(
+        offset.dx - 1.8,
+        offset.dy,
+        offset.dx - 2.0,
+        offset.dy - 3.0,
+        offset.dx,
+        offset.dy - 5.5,
+      )
+      ..close();
+    canvas.drawPath(centerLeaf, paint);
+
+    // Left petal
+    final leftPetal = Path()
+      ..moveTo(offset.dx, offset.dy)
+      ..cubicTo(
+        offset.dx - 3.5,
+        offset.dy - 2.5,
+        offset.dx - 4.5,
+        offset.dy - 0.5,
+        offset.dx - 2.5,
+        offset.dy + 1.0,
+      )
+      ..close();
+    canvas.drawPath(leftPetal, paint);
+
+    // Right petal
+    final rightPetal = Path()
+      ..moveTo(offset.dx, offset.dy)
+      ..cubicTo(
+        offset.dx + 3.5,
+        offset.dy - 2.5,
+        offset.dx + 4.5,
+        offset.dy - 0.5,
+        offset.dx + 2.5,
+        offset.dy + 1.0,
+      )
+      ..close();
+    canvas.drawPath(rightPetal, paint);
+  }
+
   @override
-  bool shouldRepaint(covariant _ArcaneRingPainter oldDelegate) {
+  bool shouldRepaint(covariant _CozyArcaneRingPainter oldDelegate) {
     return oldDelegate.progressRatio != progressRatio ||
         oldDelegate.activeColor != activeColor ||
         oldDelegate.isDark != isDark ||
-        oldDelegate.isRunning != isRunning;
+        oldDelegate.isRunning != isRunning ||
+        oldDelegate.isFocusMode != isFocusMode;
   }
 }

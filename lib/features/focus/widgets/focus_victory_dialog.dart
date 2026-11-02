@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import '../../../../core/theme/rpg_colors.dart';
 import '../../../../core/theme/rpg_spacing.dart';
 import '../../../../core/utils/gamification_math.dart';
+import '../../../../core/widgets/cozy_button.dart';
 import '../../../../core/widgets/level_badge.dart';
 import '../../../../core/widgets/rpg_crest.dart';
-import '../../../../core/widgets/rpg_filled_button.dart';
 import '../../gamification/models/user_profile.dart';
 
-/// Celebratory modal presented upon completing an arcane focus trial.
+/// Celebratory Cozy Adventure RPG modal presented upon completing a focus trial.
 /// Displays actual XP awarded, linked quest fulfillment status, updated hero level,
 /// and daily focus XP cap status with rich fantasy styling.
 class FocusVictoryDialog extends StatelessWidget {
@@ -55,7 +55,7 @@ class FocusVictoryDialog extends StatelessWidget {
       elevation: 0,
       insetPadding: const EdgeInsets.symmetric(horizontal: 20),
       child: TweenAnimationBuilder<double>(
-        tween: Tween<double>(begin: disableAnimations ? 1.0 : 0.85, end: 1.0),
+        tween: Tween<double>(begin: disableAnimations ? 1.0 : 0.88, end: 1.0),
         duration: disableAnimations
             ? Duration.zero
             : const Duration(milliseconds: 280),
@@ -65,27 +65,19 @@ class FocusVictoryDialog extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.all(RpgSpacing.xl),
           decoration: BoxDecoration(
-            color: isDark ? RpgColors.abyssNavySurface : Colors.white,
-            borderRadius: BorderRadius.circular(RpgSpacing.radiusCard),
+            color: isDark ? RpgColors.softIndigo : Colors.white,
+            borderRadius: BorderRadius.circular(20),
             border: Border.all(
               color: isDark
-                  ? RpgColors.rpgGold.withValues(alpha: 0.65)
-                  : RpgColors.arcaneViolet.withValues(alpha: 0.5),
+                  ? RpgColors.warmGold.withValues(alpha: 0.60)
+                  : RpgColors.warmGold.withValues(alpha: 0.45),
               width: 1.5,
             ),
             boxShadow: [
               BoxShadow(
-                color: isDark
-                    ? RpgColors.arcaneViolet.withValues(alpha: 0.32)
-                    : RpgColors.arcaneViolet.withValues(alpha: 0.16),
-                blurRadius: 24,
-                spreadRadius: 2,
+                color: Colors.black.withValues(alpha: isDark ? 0.40 : 0.08),
+                blurRadius: 18,
                 offset: const Offset(0, 6),
-              ),
-              BoxShadow(
-                color: Colors.black.withValues(alpha: isDark ? 0.45 : 0.08),
-                blurRadius: 12,
-                offset: const Offset(0, 4),
               ),
             ],
           ),
@@ -118,7 +110,7 @@ class FocusVictoryDialog extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(
                   horizontal: RpgSpacing.md,
-                  vertical: 6,
+                  vertical: 7,
                 ),
                 decoration: BoxDecoration(
                   gradient: awardedXp > 0 ? RpgColors.goldGradient : null,
@@ -140,7 +132,7 @@ class FocusVictoryDialog extends StatelessWidget {
                       Icons.auto_awesome_rounded,
                       size: 16,
                       color: awardedXp > 0
-                          ? Colors.white
+                          ? const Color(0xFF2B1602)
                           : (isDark ? Colors.grey : Colors.black54),
                     ),
                     const SizedBox(width: 6),
@@ -152,7 +144,7 @@ class FocusVictoryDialog extends StatelessWidget {
                         fontSize: 13,
                         fontWeight: FontWeight.w800,
                         color: awardedXp > 0
-                            ? Colors.white
+                            ? const Color(0xFF2B1602)
                             : (isDark ? Colors.grey : Colors.black87),
                       ),
                     ),
@@ -163,9 +155,11 @@ class FocusVictoryDialog extends StatelessWidget {
 
               // Daily Focus XP Cap Status
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
                 decoration: BoxDecoration(
-                  color: isDark ? Colors.white10 : Colors.grey.shade100,
+                  color: isDark
+                      ? Colors.white.withValues(alpha: 0.06)
+                      : Colors.grey.shade100,
                   borderRadius: BorderRadius.circular(6),
                 ),
                 child: Row(
@@ -178,7 +172,7 @@ class FocusVictoryDialog extends StatelessWidget {
                           ? Colors.grey.shade400
                           : Colors.grey.shade600,
                     ),
-                    const SizedBox(width: 4),
+                    const SizedBox(width: 5),
                     Text(
                       'Daily Focus XP Cap: Max ${GamificationMath.maxFocusSessionXpPerDay} XP / day',
                       style: TextStyle(
@@ -238,31 +232,50 @@ class FocusVictoryDialog extends StatelessWidget {
               ],
 
               // Player Stats Bar
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  LevelBadge(level: profile.currentLevel, compact: true),
-                  const SizedBox(width: RpgSpacing.md),
-                  Text(
-                    '${profile.totalXp} Total XP',
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
-                      color: isDark ? Colors.white70 : Colors.black87,
-                    ),
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 6,
+                ),
+                decoration: BoxDecoration(
+                  color: isDark
+                      ? RpgColors.midnightNavy.withValues(alpha: 0.50)
+                      : Colors.grey.shade50,
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(
+                    color: isDark
+                        ? RpgColors.cozyBorderDark
+                        : RpgColors.rpgBorderLight,
+                    width: 0.8,
                   ),
-                  const SizedBox(width: RpgSpacing.sm),
-                  Text(
-                    '•  $rankTitle',
-                    style: TextStyle(
-                      fontSize: 11.5,
-                      fontWeight: FontWeight.w600,
-                      color: isDark
-                          ? RpgColors.arcaneVioletLight
-                          : RpgColors.arcaneViolet,
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    LevelBadge(level: profile.currentLevel, compact: true),
+                    const SizedBox(width: RpgSpacing.sm),
+                    Text(
+                      '${profile.totalXp} Total XP',
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                        color: isDark ? Colors.white70 : Colors.black87,
+                      ),
                     ),
-                  ),
-                ],
+                    const SizedBox(width: RpgSpacing.sm),
+                    Text(
+                      '•  $rankTitle',
+                      style: TextStyle(
+                        fontSize: 11.5,
+                        fontWeight: FontWeight.w600,
+                        color: isDark
+                            ? RpgColors.warmGold
+                            : RpgColors.arcaneViolet,
+                      ),
+                    ),
+                  ],
+                ),
               ),
               const SizedBox(height: RpgSpacing.sm),
 
@@ -270,17 +283,17 @@ class FocusVictoryDialog extends StatelessWidget {
                 'Your deep work channels power to your spirit. Rest well or begin your next quest.',
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  fontSize: 12,
+                  fontSize: 11.5,
                   color: isDark ? Colors.grey.shade400 : Colors.grey.shade600,
                   height: 1.35,
                 ),
               ),
               const SizedBox(height: RpgSpacing.lg),
 
-              // Dismiss Button
-              RpgFilledButton(
+              // Dismiss Action Button
+              CozyButton.primary(
                 label: 'Claim Victory',
-                icon: Icons.shield_rounded,
+                leadingIcon: Icons.shield_rounded,
                 width: double.infinity,
                 onPressed: () {
                   Navigator.of(context).pop();

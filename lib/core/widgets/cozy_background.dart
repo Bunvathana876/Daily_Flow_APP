@@ -115,7 +115,7 @@ class CozyBackgroundScaffold extends StatelessWidget {
             ),
 
           // Optional Background Image (e.g. fantasy village or focus chamber)
-          if (bgImageWidget != null && isDark)
+          if (bgImageWidget != null)
             Positioned(
               top: 0,
               left: 0,
@@ -123,12 +123,15 @@ class CozyBackgroundScaffold extends StatelessWidget {
               bottom: isFullScreenImage ? 0 : null,
               height: isFullScreenImage ? null : backgroundImageHeight,
               child: Opacity(
-                opacity: imageOpacity.clamp(0.0, 1.0),
+                opacity: (isDark ? imageOpacity : (imageOpacity * 0.38)).clamp(
+                  0.0,
+                  1.0,
+                ),
                 child: Stack(
                   fit: StackFit.expand,
                   children: [
                     bgImageWidget,
-                    // Soft gradient dissolve into Midnight Navy
+                    // Soft gradient dissolve into background
                     Container(
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
@@ -138,17 +141,30 @@ class CozyBackgroundScaffold extends StatelessWidget {
                               ? const [0.0, 0.4, 0.85, 1.0]
                               : const [0.0, 0.5, 1.0],
                           colors: isFullScreenImage
-                              ? [
-                                  const Color(0x330B1224),
-                                  const Color(0x660B1224),
-                                  const Color(0xCC0B1224),
-                                  RpgColors.midnightNavy,
-                                ]
-                              : const [
-                                  Color(0x330B1224),
-                                  Color(0x990B1224),
-                                  RpgColors.midnightNavy,
-                                ],
+                              ? (isDark
+                                    ? [
+                                        const Color(0x330B1224),
+                                        const Color(0x660B1224),
+                                        const Color(0xCC0B1224),
+                                        RpgColors.midnightNavy,
+                                      ]
+                                    : [
+                                        Colors.white.withValues(alpha: 0.12),
+                                        Colors.white.withValues(alpha: 0.45),
+                                        Colors.white.withValues(alpha: 0.85),
+                                        RpgColors.rpgMist,
+                                      ])
+                              : (isDark
+                                    ? const [
+                                        Color(0x330B1224),
+                                        Color(0x990B1224),
+                                        RpgColors.midnightNavy,
+                                      ]
+                                    : [
+                                        Colors.white.withValues(alpha: 0.12),
+                                        Colors.white.withValues(alpha: 0.65),
+                                        RpgColors.rpgMist,
+                                      ]),
                         ),
                       ),
                     ),
@@ -158,7 +174,7 @@ class CozyBackgroundScaffold extends StatelessWidget {
             ),
 
           // Warm Lantern Glow Overlay
-          if (showLanternGlow && isDark)
+          if (showLanternGlow)
             Positioned.fill(
               child: IgnorePointer(
                 child: Container(
@@ -167,8 +183,12 @@ class CozyBackgroundScaffold extends StatelessWidget {
                       center: lanternGlowAlignment,
                       radius: 0.85,
                       colors: [
-                        RpgColors.warmGold.withValues(alpha: 0.12),
-                        RpgColors.cozyAmber.withValues(alpha: 0.05),
+                        RpgColors.warmGold.withValues(
+                          alpha: isDark ? 0.12 : 0.08,
+                        ),
+                        RpgColors.cozyAmber.withValues(
+                          alpha: isDark ? 0.05 : 0.03,
+                        ),
                         Colors.transparent,
                       ],
                       stops: const [0.0, 0.45, 1.0],
